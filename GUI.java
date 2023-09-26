@@ -8,25 +8,53 @@ public class GUI {
     public static void main(String[] args) {
         // Create a JFrame
         JFrame frame = new JFrame("Account Type Selection");
-        frame.setSize(300, 150);
+        frame.setSize(500, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Create a panel to hold the components
-        JPanel panel = new JPanel();
-        frame.add(panel);
+        //Createing a main panel to house all the other panels/components
+        JPanel mainPanel = new JPanel();
+        frame.add(mainPanel);
 
+        // Creating a user selection panel
+        JPanel userSelectionPanel = new JPanel();
+        mainPanel.add(userSelectionPanel);
         // Create a label to display instructions
         JLabel label = new JLabel("Select your account type:");
-        panel.add(label);
+        userSelectionPanel.add(label);
+
+        
+
+        /*Create User panels to hold user data, our buttons should navigate a user
+        to their respective dashboard.  Assume a login is necessary to access the page
+        */
+        //JPanel VO
+        JPanel VO = new JPanel();
+        JLabel VOLabel = new JLabel("Vehicle Owner Homepage");
+        VO.add(VOLabel);  //Add more functionality for Vehicle Owners within this Panel
+        
+
+        //JPanel JO 
+
+
+        //JPanel Admin (Garage admin)
+
+
+        //Using CardLayout to switch beteween panels
+        CardLayout CL = new CardLayout(0, 0);
+        mainPanel.setLayout(CL);
+
+        //Add components to the main panel
+        mainPanel.add(VO);
+
 
         // Create radio buttons for account types
-        JRadioButton customerRadioButton = new JRadioButton("Customer");
-        JRadioButton renterRadioButton = new JRadioButton("Renter");
+        JRadioButton VO_RadioButton = new JRadioButton("Vehicle Owner");
+        JRadioButton JO_RadioButton = new JRadioButton("Job Owner");
 
         // Create a button group for radio buttons
         ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(customerRadioButton);
-        buttonGroup.add(renterRadioButton);
+        buttonGroup.add(VO_RadioButton);
+        buttonGroup.add(JO_RadioButton);
 
         // Create a submit button
         JButton submitButton = new JButton("Submit");
@@ -35,20 +63,20 @@ public class GUI {
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (customerRadioButton.isSelected()) {
-                    JOptionPane.showMessageDialog(frame, "You selected Customer.");
-                } else if (renterRadioButton.isSelected()) {
-                    JOptionPane.showMessageDialog(frame, "You selected Renter.");
+                if (VO_RadioButton.isSelected()) {
+                    CL.show(VO, "Vehicle Owner Home Page");
+                } else if (JO_RadioButton.isSelected()) {
+                    JOptionPane.showMessageDialog(userSelectionPanel, "Redirecting to Job Owner Login");
                 } else {
-                    JOptionPane.showMessageDialog(frame, "Please select an account type.");
+                    JOptionPane.showMessageDialog(userSelectionPanel, "Please select an account type.");
                 }
             }
         });
 
-        // Add components to the panel
-        panel.add(customerRadioButton);
-        panel.add(renterRadioButton);
-        panel.add(submitButton);
+        // Add components to the user selection panel
+        userSelectionPanel.add(VO_RadioButton);
+        userSelectionPanel.add(JO_RadioButton);
+        userSelectionPanel.add(submitButton);
 
         // Center the JFrame on the screen
         frame.setLocationRelativeTo(null);
