@@ -3,6 +3,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.BufferedWriter;
 
 public class GUI {
     public static void main(String[] args) {
@@ -22,7 +26,6 @@ public class GUI {
         JLabel label = new JLabel("Select your account type:");
         userSelectionPanel.add(label);
 
-        
 
         /*Create User panels to hold user data, our buttons should navigate a user
         to their respective dashboard.  Assume a login is necessary to access the page
@@ -84,4 +87,14 @@ public class GUI {
         // Make the frame visible
 	        frame.setVisible(true);
 	    }
+
+        //Storing information on file from user input
+        public static void saveFile(String data) throws IOException {
+            String fileName = new SimpleDataFormat("yyyyMMddHHmm'.txt'").format(new java.util.Date());
+            BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+            writer.write(data);
+            writer.close();
+            System.out.println("File Saved");
+        }
+        
 	}
