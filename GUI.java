@@ -41,6 +41,9 @@ public class GUI {
 
         frame.add(cardPanel);
 
+
+      
+
         JButton clientButton = new JButton("Client");
         JButton ownerButton = new JButton("Owner");
 
@@ -51,7 +54,7 @@ public class GUI {
             }
         });
 
-        ownerButton.addActionListener(new ActionListener() {
+        ownerButton.addActionListener(new Actionlistener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cardLayout.show(cardPanel, "Owner");
@@ -61,6 +64,12 @@ public class GUI {
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(clientButton);
         buttonPanel.add(ownerButton);
+
+        frame.add(buttonPanel, BorderLayout.NORTH);
+
+        frame.setVisible(true);
+    }
+
 
         frame.add(buttonPanel, BorderLayout.NORTH);
 
