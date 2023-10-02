@@ -1,43 +1,71 @@
-	
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class GUI {
-    public static void main(String[] args) {
-        // Create a JFrame
-        JFrame frame = new JFrame("Account Type Selection");
-        frame.setSize(500, 300);
+    private JFrame frame;
+    private JPanel cardPanel;
+    private CardLayout cardLayout;
+
+    private JPanel clientPanel;
+    private JPanel ownerPanel;
+
+    private JTextField userIdField;
+    private JTextField vehicleInfoField;
+    private JTextField residencyTimeField;
+
+    private JTextField clientIdField;
+    private JTextField jobDurationField;
+    private JTextField jobDeadlineField;
+
+    public GUI() {
+        frame = new JFrame("User Information App");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
 
-        //Createing a main panel to house all the other panels/components
-        JPanel mainPanel = new JPanel();
-        frame.add(mainPanel);
+        cardPanel = new JPanel();
+        cardLayout = new CardLayout();
+        cardPanel.setLayout(cardLayout);
 
-        // Creating a user selection panel
-        JPanel userSelectionPanel = new JPanel();
-        mainPanel.add(userSelectionPanel);
-        // Create a label to display instructions
-        JLabel label = new JLabel("Select your account type:");
-        userSelectionPanel.add(label);
+        clientPanel = createClientPanel();
+        ownerPanel = createOwnerPanel();
 
-        
+        cardPanel.add(clientPanel, "Client");
+        cardPanel.add(ownerPanel, "Owner");
 
-        /*Create User panels to hold user data, our buttons should navigate a user
-        to their respective dashboard.  Assume a login is necessary to access the page
-        */
-        //JPanel VO
-        JPanel VO = new JPanel();
-        JLabel VOLabel = new JLabel("Vehicle Owner Homepage");
-        VO.add(VOLabel);  //Add more functionality for Vehicle Owners within this Panel
-        
+        frame.add(cardPanel);
 
-        //JPanel JO 
+        JButton clientButton = new JButton("Client");
+        JButton ownerButton = new JButton("Owner");
 
+        clientButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "Client");
+            }
+        });
 
-        //JPanel Admin (Garage admin)
+        ownerButton.addActionListener(new Actionlistener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "Owner");
+            }
+        });
 
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(clientButton);
+        buttonPanel.add(ownerButton);
+
+        frame.add(buttonPanel, BorderLayout.NORTH);
+
+        frame.setVisible(true);
+    }
 
         //Using CardLayout to switch beteween panels
         CardLayout CL = new CardLayout(0, 0);
