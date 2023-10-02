@@ -69,22 +69,49 @@ public class GUI {
 
     private JPanel createClientPanel() {
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 2));
-
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+    
         JLabel userIdLabel = new JLabel("Client ID:");
         clientIdField = new JTextField();
         JLabel jobDurationLabel = new JLabel("Job Duration:");
         jobDurationField = new JTextField();
         JLabel jobDeadlineLabel = new JLabel("Job Deadline:");
         jobDeadlineField = new JTextField();
-
-        panel.add(userIdLabel);
-        panel.add(clientIdField);
-        panel.add(jobDurationLabel);
-        panel.add(jobDurationField);
-        panel.add(jobDeadlineLabel);
-        panel.add(jobDeadlineField);
-
+    
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(userIdLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0; // Make the text field wider
+        panel.add(clientIdField, gbc);
+    
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0.0; // Reset weightx to its default value
+        panel.add(jobDurationLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0; // Make the text field wider
+        panel.add(jobDurationField, gbc);
+    
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0.0; // Reset weightx to its default value
+        panel.add(jobDeadlineLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0; // Make the text field wider
+        panel.add(jobDeadlineField, gbc);
+    
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener(new ActionListener() {
             @Override
@@ -92,11 +119,16 @@ public class GUI {
                 saveClientInformation();
             }
         });
-
-        panel.add(submitButton);
-
+    
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(submitButton, gbc);
+    
         return panel;
-    }
+    }    
 
     private JPanel createOwnerPanel() {
         JPanel panel = new JPanel();
