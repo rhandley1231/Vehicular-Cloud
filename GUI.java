@@ -41,6 +41,9 @@ public class GUI {
 
         frame.add(cardPanel);
 
+
+      
+
         JButton clientButton = new JButton("Client");
         JButton ownerButton = new JButton("Owner");
 
@@ -67,49 +70,121 @@ public class GUI {
         frame.setVisible(true);
     }
 
-        //Using CardLayout to switch beteween panels
-        CardLayout CL = new CardLayout(0, 0);
-        mainPanel.setLayout(CL);
 
-        //Add components to the main panel
-        mainPanel.add(VO);
+        frame.add(buttonPanel, BorderLayout.NORTH);
 
+        frame.setVisible(true);
+    }
 
-        // Create radio buttons for account types
-        JRadioButton VO_RadioButton = new JRadioButton("Vehicle Owner");
-        JRadioButton JO_RadioButton = new JRadioButton("Job Owner");
+    private JPanel createClientPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(3, 2));
 
-        // Create a button group for radio buttons
-        ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(VO_RadioButton);
-        buttonGroup.add(JO_RadioButton);
+        JLabel userIdLabel = new JLabel("Client ID:");
+        clientIdField = new JTextField();
+        JLabel jobDurationLabel = new JLabel("Job Duration:");
+        jobDurationField = new JTextField();
+        JLabel jobDeadlineLabel = new JLabel("Job Deadline:");
+        jobDeadlineField = new JTextField();
 
-        // Create a submit button
+        panel.add(userIdLabel);
+        panel.add(clientIdField);
+        panel.add(jobDurationLabel);
+        panel.add(jobDurationField);
+        panel.add(jobDeadlineLabel);
+        panel.add(jobDeadlineField);
+
         JButton submitButton = new JButton("Submit");
-
-        // Add action listener to the submit button
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (VO_RadioButton.isSelected()) {
-                    CL.show(VO, "Vehicle Owner Home Page");
-                } else if (JO_RadioButton.isSelected()) {
-                    JOptionPane.showMessageDialog(userSelectionPanel, "Redirecting to Job Owner Login");
-                } else {
-                    JOptionPane.showMessageDialog(userSelectionPanel, "Please select an account type.");
-                }
+                saveClientInformation();
             }
         });
 
-        // Add components to the user selection panel
-        userSelectionPanel.add(VO_RadioButton);
-        userSelectionPanel.add(JO_RadioButton);
-        userSelectionPanel.add(submitButton);
+        panel.add(submitButton);
 
-        // Center the JFrame on the screen
-        frame.setLocationRelativeTo(null);
+        return panel;
+    }
 
-        // Make the frame visible
-	        frame.setVisible(true);
-	    }
-	}
+    private JPanel createOwnerPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(3, 2));
+
+        JLabel userIdLabel = new JLabel("Owner ID:");
+        userIdField = new JTextField();
+        JLabel vehicleInfoLabel = new JLabel("Vehicle Info:");
+        vehicleInfoField = new JTextField();
+        JLabel residencyTimeLabel = new JLabel("Residency Time:");
+        residencyTimeField = new JTextField();
+
+        panel.add(userIdLabel);
+        panel.add(userIdField);
+        panel.add(vehicleInfoLabel);
+        panel.add(vehicleInfoField);
+        panel.add(residencyTimeLabel);
+        panel.add(residencyTimeField);
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveOwnerInformation();
+            }
+        });
+
+        panel.add(submitButton);
+
+        return panel;
+    }
+
+    private void saveClientInformation() {
+        String clientId = clientIdField.getText();
+        String jobDuration = jobDurationField.getText();
+        String jobDeadline = jobDeadlineField.getText();
+
+        // Save information to a file with a timestamp
+        saveInformationToFile("Client", clientId, jobDuration, jobDeadline);
+
+        // Clear fields
+        clientIdField.setText("");
+        jobDurationField.setText("");
+        jobDeadlineField.setText("");
+    }
+
+    private void saveOwnerInformation() {
+        String ownerId = userIdField.getText();
+        String vehicleInfo = vehicleInfoField.getText();
+        String residencyTime = residencyTimeField.getText();
+
+        // Save information to a file with a timestamp
+        saveInformationToFile("Owner", ownerId, vehicleInfo, residencyTime);
+
+        // Clear fields
+        userIdField.setText("");
+        vehicleInfoField.setText("");
+        residencyTimeField.setText("");
+    }
+
+    private void saveInformationToFile(String userType, String id, String info1, String info2) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("user_info.txt", true))) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String timestamp = dateFormat.format(new Date());
+
+            String entry = timestamp + " - " + userType + " ID: " + id + ", Info1: " + info1 + ", Info2: " + info2;
+            writer.write(entry);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new GUI();
+            }
+        });
+    }
+}
