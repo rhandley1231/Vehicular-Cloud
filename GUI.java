@@ -189,13 +189,27 @@ public class GUI {
         return panel;
     }
 
+    private void saveInformationToFile(String userType, String id, String info1, String info2,
+                                       String label1, String label2) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("user_info.txt", true))) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String timestamp = dateFormat.format(new Date());
+
+            String entry = timestamp + " - " + userType + " ID: " + id + ", " + label1 + ": " + info1 + ", " + label2 + ": " + info2;
+            writer.write(entry);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void saveClientInformation() {
         String clientId = clientIdField.getText();
         String jobDuration = jobDurationField.getText();
         String jobDeadline = jobDeadlineField.getText();
 
-        // Save information to a file with a timestamp
-        saveInformationToFile("Client", clientId, jobDuration, jobDeadline);
+        // Saves information to our file with labels for Client
+        saveInformationToFile("Client", clientId, jobDuration, jobDeadline, "Job Duration", "Job Deadline");
 
         // Clear fields
         clientIdField.setText("");
@@ -208,26 +222,13 @@ public class GUI {
         String vehicleInfo = vehicleInfoField.getText();
         String residencyTime = residencyTimeField.getText();
 
-        // Save information to a file with a timestamp
-        saveInformationToFile("Owner", ownerId, vehicleInfo, residencyTime);
+        // Save information to a file with labels for Owner
+        saveInformationToFile("Owner", ownerId, vehicleInfo, residencyTime, "Vehicle Info", "Residency Time");
 
         // Clear fields
         userIdField.setText("");
         vehicleInfoField.setText("");
         residencyTimeField.setText("");
-    }
-
-    private void saveInformationToFile(String userType, String id, String info1, String info2) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("user_info.txt", true))) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String timestamp = dateFormat.format(new Date());
-
-            String entry = timestamp + " - " + userType + " ID: " + id + ", Info1: " + info1 + ", Info2: " + info2;
-            writer.write(entry);
-            writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public static void main(String[] args) {
