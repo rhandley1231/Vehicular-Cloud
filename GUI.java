@@ -75,11 +75,11 @@ public class GUI {
         gbc.anchor = GridBagConstraints.WEST;
 
         JLabel userIdLabel = new JLabel("Client ID:");
-        clientIdField = new JTextField();
+        clientIdField = new JTextField(20); // Set preferred size to 20 columns
         JLabel jobDurationLabel = new JLabel("Job Duration:");
-        jobDurationField = new JTextField();
+        jobDurationField = new JTextField(20); // Set preferred size to 20 columns
         JLabel jobDeadlineLabel = new JLabel("Job Deadline:");
-        jobDeadlineField = new JTextField();
+        jobDeadlineField = new JTextField(20); // Set preferred size to 20 columns
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -138,11 +138,11 @@ public class GUI {
         gbc.anchor = GridBagConstraints.WEST;
 
         JLabel userIdLabel = new JLabel("Owner ID:");
-        userIdField = new JTextField();
+        userIdField = new JTextField(20); // Set preferred size to 20 columns
         JLabel vehicleInfoLabel = new JLabel("Vehicle Info:");
-        vehicleInfoField = new JTextField();
+        vehicleInfoField = new JTextField(20); // Set preferred size to 20 columns
         JLabel residencyTimeLabel = new JLabel("Residency Time:");
-        residencyTimeField = new JTextField();
+        residencyTimeField = new JTextField(20); // Set preferred size to 20 columns
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -189,27 +189,13 @@ public class GUI {
         return panel;
     }
 
-    private void saveInformationToFile(String userType, String id, String info1, String info2,
-                                       String label1, String label2) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("user_info.txt", true))) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String timestamp = dateFormat.format(new Date());
-
-            String entry = timestamp + " - " + userType + " ID: " + id + ", " + label1 + ": " + info1 + ", " + label2 + ": " + info2;
-            writer.write(entry);
-            writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void saveClientInformation() {
         String clientId = clientIdField.getText();
         String jobDuration = jobDurationField.getText();
         String jobDeadline = jobDeadlineField.getText();
 
-        // Saves information to our file with labels for Client
-        saveInformationToFile("Client", clientId, jobDuration, jobDeadline, "Job Duration", "Job Deadline");
+        // Save information to a file with a timestamp
+        saveInformationToFile("Client", clientId, jobDuration, jobDeadline);
 
         // Clear fields
         clientIdField.setText("");
@@ -222,13 +208,26 @@ public class GUI {
         String vehicleInfo = vehicleInfoField.getText();
         String residencyTime = residencyTimeField.getText();
 
-        // Save information to a file with labels for Owner
-        saveInformationToFile("Owner", ownerId, vehicleInfo, residencyTime, "Vehicle Info", "Residency Time");
+        // Save information to a file with a timestamp
+        saveInformationToFile("Owner", ownerId, vehicleInfo, residencyTime);
 
         // Clear fields
         userIdField.setText("");
         vehicleInfoField.setText("");
         residencyTimeField.setText("");
+    }
+
+    private void saveInformationToFile(String userType, String id, String info1, String info2) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("user_info.txt", true))) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String timestamp = dateFormat.format(new Date());
+
+            String entry = timestamp + " - " + userType + " ID: " + id + ", Info1: " + info1 + ", Info2: " + info2;
+            writer.write(entry);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
