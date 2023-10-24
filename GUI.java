@@ -13,6 +13,7 @@ public class GUI {
     private JPanel cardPanel;
     private CardLayout cardLayout;
 
+    private JPanel welcomePanel; // Add the welcome panel
     private JPanel clientPanel;
     private JPanel ownerPanel;
 
@@ -25,7 +26,7 @@ public class GUI {
     private JTextField jobDeadlineField;
 
     public GUI() {
-        frame = new JFrame("User Information App");
+        frame = new JFrame("Parking Management App"); // Change the app title
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 300);
 
@@ -33,9 +34,11 @@ public class GUI {
         cardLayout = new CardLayout();
         cardPanel.setLayout(cardLayout);
 
+        welcomePanel = createWelcomePanel(); // Create the welcome panel
         clientPanel = createClientPanel();
         ownerPanel = createOwnerPanel();
 
+        cardPanel.add(welcomePanel, "Welcome"); // Add the welcome panel
         cardPanel.add(clientPanel, "Client");
         cardPanel.add(ownerPanel, "Owner");
 
@@ -67,7 +70,52 @@ public class GUI {
         frame.setVisible(true);
     }
 
-    private JPanel createClientPanel() {
+    private JPanel createWelcomePanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+
+        JLabel welcomeLabel = new JLabel("Welcome to Parking Management App");
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24)); // Increase font size
+        welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JTextArea welcomeText = new JTextArea("The welcome page of this app serves as an entry point for Parking Management using static vehicular cloud computing. Users can choose to access either the \"Client\" or \"Owner\" functionality, where clients can request parking services and owners can provide parking spaces. This app facilitates parking management by connecting clients and owners through vehicular cloud computing for efficient, location-based parking solutions.");
+        welcomeText.setFont(new Font("Arial", Font.PLAIN, 18)); // Increase font size
+        welcomeText.setWrapStyleWord(true);
+        welcomeText.setLineWrap(true);
+        welcomeText.setOpaque(false);
+        welcomeText.setEditable(false);
+        welcomeText.setMargin(new Insets(20, 20, 20, 20)); // Add margins for centering
+
+        JScrollPane scrollPane = new JScrollPane(welcomeText);
+        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the text
+
+        JButton startClientButton = new JButton("Client");
+        startClientButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "Client");
+            }
+        });
+
+        JButton startOwnerButton = new JButton("Owner");
+        startOwnerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "Owner");
+            }
+        });
+
+        panel.add(welcomeLabel, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(startClientButton, BorderLayout.WEST);
+        panel.add(startOwnerButton, BorderLayout.EAST);
+
+        return panel;
+    }
+
+
+    
+	private JPanel createClientPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
