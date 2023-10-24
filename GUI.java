@@ -268,46 +268,77 @@ private JPanel createOwnerPanel() {
 
     return panel;
 }
-    private void saveClientInformation() {
-        String clientId = clientIdField.getText();
-        String jobDuration = jobDurationField.getText();
-        String jobDeadline = jobDeadlineField.getText();
+private void saveClientInformation() {
+    String clientId = clientIdField.getText();
+    String jobDurationInput = jobDurationField.getText();
+    String jobDeadline = jobDeadlineField.getText();
 
-        // Save information to a file with a timestamp
-        saveInformationToFile("Client", clientId, jobDuration, jobDeadline);
+    int hours = 0;
+    int minutes = 0;
 
-        // Clear fields
-        clientIdField.setText("");
-        jobDurationField.setText("");
-        jobDeadlineField.setText("");
-    }
-
-    private void saveOwnerInformation() {
-        String ownerId = userIdField.getText();
-        String vehicleInfo = vehicleInfoField.getText();
-        String residencyTime = residencyTimeField.getText();
-
-        // Save information to a file with a timestamp
-        saveInformationToFile("Owner", ownerId, vehicleInfo, residencyTime);
-
-        // Clear fields
-        userIdField.setText("");
-        vehicleInfoField.setText("");
-        residencyTimeField.setText("");
-    }
-
-    private void saveInformationToFile(String userType, String id, String info1, String info2) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("user_info.txt", true))) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String timestamp = dateFormat.format(new Date());
-
-            String entry = timestamp + " - " + userType + " ID: " + id + ", Info1: " + info1 + ", Info2: " + info2;
-            writer.write(entry);
-            writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
+    // Validate and parse job duration input
+    try {
+        String[] parts = jobDurationInput.split(":");
+        if (parts.length == 2) {
+            hours = Integer.parseInt(parts[0]);
+            minutes = Integer.parseInt(parts[1]);
+        } else {
+            // Invalid format
+            JOptionPane.showMessageDialog(frame, "Invalid job duration format. Please use hh:mm (e.g., 02:30).", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+    } catch (NumberFormatException e) {
+        // Invalid number format
+        JOptionPane.showMessageDialog(frame, "Invalid job duration format. Please use hh:mm (e.g., 02:30).", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
     }
+
+    // Handle other validations as needed
+
+    // Save information to a file with a timestamp
+    saveInformationToFile("Client", clientId, jobDurationInput, jobDeadline);
+
+    // Clear fields
+    clientIdField.setText("");
+    jobDurationField.setText("");
+    jobDeadlineField.setText("");
+}
+
+private void saveOwnerInformation() {
+    String ownerId = userIdField.getText();
+    String vehicleInfo = vehicleInfoField.getText();
+    String residencyTimeInput = residencyTimeField.getText();
+
+    int hours = 0;
+    int minutes = 0;
+
+    // Validate and parse residency time input
+    try {
+        String[] parts = residencyTimeInput.split(":");
+        if (parts.length == 2) {
+            hours = Integer.parseInt(parts[0]);
+            minutes = Integer.parseInt(parts[1]);
+        } else {
+            // Invalid format
+            JOptionPane.showMessageDialog(frame, "Invalid residency time format. Please use hh:mm (e.g., 02:30).", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    } catch (NumberFormatException e) {
+        // Invalid number format
+        JOptionPane.showMessageDialog(frame, "Invalid residency time format. Please use hh:mm (e.g., 02:30).", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // Handle other validations as needed
+
+    // Save information to a file with a timestamp
+    saveInformationToFile("Owner", ownerId, vehicleInfo, residencyTimeInput);
+
+    // Clear fields
+    userIdField.setText("");
+    vehicleInfoField.setText("");
+    residencyTimeField.setText("");
+}
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
