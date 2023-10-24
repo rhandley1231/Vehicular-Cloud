@@ -78,7 +78,7 @@ public class GUI {
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24)); // Increase font size
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JTextArea welcomeText = new JTextArea("The welcome page of this app serves as an entry point for Parking Management using static vehicular cloud computing. Users can choose to access either the \"Client\" or \"Owner\" functionality, where clients can request parking services and owners can provide parking spaces. This app facilitates parking management by connecting clients and owners through vehicular cloud computing for efficient, location-based parking solutions.");
+        JTextArea welcomeText = new JTextArea("The welcome page of this app serves as an entry point for Vehicle Management using static vehicular cloud computing. Users can choose to access either the \"Client\" or \"Owner\" functionality, where clients can request vehicle services and owners can provide a vehicle. This app facilitates vehicle management by connecting clients and owners through vehicular cloud computing for efficient, location-based parking solutions.");
         welcomeText.setFont(new Font("Arial", Font.PLAIN, 18)); // Increase font size
         welcomeText.setWrapStyleWord(true);
         welcomeText.setLineWrap(true);
