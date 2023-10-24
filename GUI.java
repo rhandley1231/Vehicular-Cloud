@@ -233,7 +233,7 @@ public class GUI {
         JLabel vehicleInfoLabel = new JLabel("Vehicle Info:");
         vehicleInfoField = new JTextField(20);
 
-        JLabel residencyTimeLabel = new JLabel("Residency Time (hh:mm):");
+        JLabel residencyTimeLabel = new JLabel("Residency Time:");
 
         // Add separate fields for month, day, year, hour, and minute
         JTextField monthField = new JTextField(4);
