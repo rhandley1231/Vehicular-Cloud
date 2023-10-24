@@ -74,7 +74,7 @@ public class GUI {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
-        JLabel welcomeLabel = new JLabel("Welcome to Parking Management App");
+        JLabel welcomeLabel = new JLabel("Welcome to Vehicle Management App");
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24)); // Increase font size
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
