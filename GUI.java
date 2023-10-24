@@ -68,126 +68,109 @@ public class GUI {
     }
 
     private JPanel createClientPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
+    JPanel panel = new JPanel();
+    panel.setLayout(new GridBagLayout());
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(5, 5, 5, 5);
+    gbc.anchor = GridBagConstraints.WEST;
 
-        JLabel userIdLabel = new JLabel("Client ID:");
-        clientIdField = new JTextField(20); // Set preferred size to 20 columns
-        JLabel jobDurationLabel = new JLabel("Job Duration:");
-        jobDurationField = new JTextField(20); // Set preferred size to 20 columns
-        JLabel jobDeadlineLabel = new JLabel("Job Deadline:");
-        jobDeadlineField = new JTextField(20); // Set preferred size to 20 columns
+    JLabel userIdLabel = new JLabel("Client ID:");
+    clientIdField = new JTextField(20);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(userIdLabel, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(clientIdField, gbc);
+    JLabel jobDurationLabel = new JLabel("Job Duration (hh:mm):");
+    jobDurationField = new JTextField(8);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        panel.add(jobDurationLabel, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(jobDurationField, gbc);
+    JLabel jobDeadlineLabel = new JLabel("Job Deadline:");
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        panel.add(jobDeadlineLabel, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(jobDeadlineField, gbc);
+    // Add separate fields for month, day, year, hour, and minute
+    JTextField monthField = new JTextField(4);
+    JTextField dayField = new JTextField(4);
+    JTextField yearField = new JTextField(4);
+    JTextField hourField = new JTextField(4);
+    JTextField minuteField = new JTextField(4);
 
-        JButton submitButton = new JButton("Submit");
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveClientInformation();
-            }
-        });
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    panel.add(userIdLabel, gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    panel.add(clientIdField, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(submitButton, gbc);
+    gbc.gridx = 0;
+    gbc.gridy = 1;
+    panel.add(jobDurationLabel, gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 1;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    panel.add(jobDurationField, gbc);
 
-        return panel;
-    }
+    // Add explanatory text for the job duration format
+    JLabel jobDurationFormatLabel = new JLabel("Format: hh:mm (e.g., 02:30 for 2 hours and 30 minutes)");
+    gbc.gridx = 0;
+    gbc.gridy = 2;
+    gbc.gridwidth = 2;
+    panel.add(jobDurationFormatLabel, gbc);
 
-    private JPanel createOwnerPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
+    gbc.gridx = 0;
+    gbc.gridy = 3;
+    panel.add(jobDeadlineLabel, gbc);
 
-        JLabel userIdLabel = new JLabel("Owner ID:");
-        userIdField = new JTextField(20); // Set preferred size to 20 columns
-        JLabel vehicleInfoLabel = new JLabel("Vehicle Info:");
-        vehicleInfoField = new JTextField(20); // Set preferred size to 20 columns
-        JLabel residencyTimeLabel = new JLabel("Residency Time:");
-        residencyTimeField = new JTextField(20); // Set preferred size to 20 columns
+    // Add labels and fields for month, day, year, hour, and minute
+    gbc.gridx = 0;
+    gbc.gridy = 4;
+    panel.add(new JLabel("Month:"), gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 4;
+    panel.add(monthField, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(userIdLabel, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(userIdField, gbc);
+    gbc.gridx = 0;
+    gbc.gridy = 5;
+    panel.add(new JLabel("Day:"), gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 5;
+    panel.add(dayField, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(vehicleInfoLabel, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(vehicleInfoField, gbc);
+    gbc.gridx = 0;
+    gbc.gridy = 6;
+    panel.add(new JLabel("Year:"), gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 6;
+    panel.add(yearField, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        panel.add(residencyTimeLabel, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(residencyTimeField, gbc);
+    gbc.gridx = 0;
+    gbc.gridy = 7;
+    panel.add(new JLabel("Hour:"), gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 7;
+    panel.add(hourField, gbc);
 
-        JButton submitButton = new JButton("Submit");
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveOwnerInformation();
-            }
-        });
+    gbc.gridx = 0;
+    gbc.gridy = 8;
+    panel.add(new JLabel("Minute:"), gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 8;
+    panel.add(minuteField, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(submitButton, gbc);
+    JButton submitButton = new JButton("Submit");
+    submitButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            saveClientInformation();
+        }
+    });
 
-        return panel;
-    }
+    gbc.gridx = 0;
+    gbc.gridy = 9;
+    gbc.gridwidth = 2;
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.CENTER;
+    panel.add(submitButton, gbc);
+
+    return panel;
+}
 
     private void saveClientInformation() {
         String clientId = clientIdField.getText();
