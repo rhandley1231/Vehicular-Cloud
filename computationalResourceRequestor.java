@@ -1,7 +1,7 @@
 import java.util.*;
-public class jobOwner extends User {
+public class computationalResourceRequestor extends User {
     private ArrayList<job> jobList = new ArrayList<job>();
-    public jobOwner(String userName, String password, ArrayList<job> jobList){
+    public computationalResourceRequestor(String userName, String password, ArrayList<job> jobList){
         super(userName, password);
         this.jobList = jobList;
     }
