@@ -8,14 +8,22 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
 public class GUI {
     private JFrame frame;
-    private JPanel cardPanel;
-    private CardLayout cardLayout;
+    private static JPanel cardPanel;
+    private static CardLayout cardLayout;
+    private static JPanel mainPanel;
+    private static JPanel currentPanel;
 
     private JPanel welcomePanel; // Add the welcome panel
     private JPanel clientPanel;
     private JPanel ownerPanel;
+    private JPanel Login;
+    private JPanel voLogin;
+    private JPanel crrLogin;
+    private JPanel adminLogin;
+    private JPanel newUser;
 
     private JTextField userIdField;
     private JTextField vehicleInfoField;
@@ -30,6 +38,7 @@ public class GUI {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 300);
 
+        mainPanel = new JPanel();
         cardPanel = new JPanel();
         cardLayout = new CardLayout();
         cardPanel.setLayout(cardLayout);
@@ -37,38 +46,59 @@ public class GUI {
         welcomePanel = createWelcomePanel(); // Create the welcome panel
         clientPanel = createClientPanel();
         ownerPanel = createOwnerPanel();
+        voLogin = createVOLoginPanel();
 
-        cardPanel.add(welcomePanel, "Welcome"); // Add the welcome panel
-        cardPanel.add(clientPanel, "Client");
-        cardPanel.add(ownerPanel, "Owner");
+        mainPanel.add(welcomePanel, "Welcome"); // Add the welcome panel
+        currentPanel = mainPanel; 
 
-        frame.add(cardPanel);
+        frame.add(currentPanel);
 
-        JButton clientButton = new JButton("Client");
-        JButton ownerButton = new JButton("Owner");
+        JButton clientButton = new JButton("Computational Resource Requestor");
+        JButton vccLoginButton = new JButton("Admin");
+        JButton ownerButton = new JButton("Vehicle Owner");
 
         clientButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Client");
+                 switchToPanel(crrLogin);
             }
         });
 
         ownerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Owner");
+                 switchToPanel(voLogin);
+            }
+        });
+        vccLoginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                switchToPanel(adminLogin);
             }
         });
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(clientButton);
+        buttonPanel.add(vccLoginButton);
         buttonPanel.add(ownerButton);
 
-        frame.add(buttonPanel, BorderLayout.NORTH);
+
+        frame.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
     }
+     private static void switchToPanel(JPanel newPanel){
+        cardLayout.show(cardPanel, newPanel.getName());
+        currentPanel = newPanel;
+            
+        }
+
+    private JPanel createVOLoginPanel(){
+        JPanel voLogin = new JPanel();
+        JLabel label = new JLabel("Vehicle Owner Login");
+        voLogin.add(label);
+        return voLogin;
+    }    
 
     private JPanel createWelcomePanel() {
         JPanel panel = new JPanel();
@@ -78,7 +108,7 @@ public class GUI {
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24)); // Increase font size
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JTextArea welcomeText = new JTextArea("The welcome page of this app serves as an entry point for Vehicle Management using static vehicular cloud computing. Users can choose to access either the \"Client\" or \"Owner\" functionality, where clients can request vehicle services and owners can provide a vehicle. This app facilitates vehicle management by connecting clients and owners through vehicular cloud computing for efficient, location-based vehicle solutions.");
+        JTextArea welcomeText = new JTextArea("The welcome page of this app serves as an entry point for Vehicle Management using static vehicular cloud computing. Users can choose to access either the \"Computational Resource Requestor / CRR\", \"Vehicle Owner\", or \"Admin\" functionality, where CRRs can request vehicle services and vehicle owners can manage their vehicles. This app facilitates vehicle management by connecting CRRs and Vehicle Owners through vehicular cloud computing for efficient, location-based vehicle solutions.");
         welcomeText.setFont(new Font("Arial", Font.PLAIN, 18)); // Increase font size
         welcomeText.setWrapStyleWord(true);
         welcomeText.setLineWrap(true);
@@ -88,28 +118,9 @@ public class GUI {
 
         JScrollPane scrollPane = new JScrollPane(welcomeText);
         scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the text
-
-        JButton startClientButton = new JButton("Client");
-        startClientButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Client");
-            }
-        });
-
-        JButton startOwnerButton = new JButton("Owner");
-        startOwnerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Owner");
-            }
-        });
-
         panel.add(welcomeLabel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(startClientButton, BorderLayout.WEST);
-        panel.add(startOwnerButton, BorderLayout.EAST);
-
+        
         return panel;
     }
 
@@ -122,7 +133,7 @@ public class GUI {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
-        JLabel userIdLabel = new JLabel("Client ID:");
+        JLabel userIdLabel = new JLabel("Username:");
         clientIdField = new JTextField(20);
 
         JLabel jobDurationLabel = new JLabel("Job Duration (hh:mm):");
