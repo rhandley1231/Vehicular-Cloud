@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,7 +27,7 @@ public class GUI {
     private JTextField jobDeadlineField;
 
     public GUI() {
-        frame = new JFrame("Parking Management App"); // Change the app title
+        frame = new JFrame("The Utopia VCRTS");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 300);
 
@@ -34,81 +35,88 @@ public class GUI {
         cardLayout = new CardLayout();
         cardPanel.setLayout(cardLayout);
 
-        welcomePanel = createWelcomePanel(); // Create the welcome panel
+        welcomePanel = createWelcomePanel();
         clientPanel = createClientPanel();
         ownerPanel = createOwnerPanel();
 
-        cardPanel.add(welcomePanel, "Welcome"); // Add the welcome panel
-        cardPanel.add(clientPanel, "Client");
-        cardPanel.add(ownerPanel, "Owner");
+        cardPanel.add(welcomePanel, "Welcome");
+        cardPanel.add(clientPanel, "Computation Resource Requestor");
+        cardPanel.add(ownerPanel, "Vehicle Owner");
 
         frame.add(cardPanel);
 
-        JButton clientButton = new JButton("Client");
-        JButton ownerButton = new JButton("Owner");
-
-        clientButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Client");
-            }
-        });
-
-        ownerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Owner");
-            }
-        });
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(clientButton);
-        buttonPanel.add(ownerButton);
-
-        frame.add(buttonPanel, BorderLayout.NORTH);
-
         frame.setVisible(true);
+    }
+
+    private JButton createStyledButton(String text, ActionListener actionListener) {
+        JButton button = new JButton(text);
+        button.setBackground(new Color(51, 153, 255));
+        button.setFont(new Font("Arial", Font.PLAIN, 18));
+        if (actionListener != null) {
+            button.addActionListener(actionListener);
+        }
+        return button;
     }
 
     private JPanel createWelcomePanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
+        panel.setBackground(new Color(230, 230, 230));
 
         JLabel welcomeLabel = new JLabel("Welcome to Vehicle Management App");
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24)); // Increase font size
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         JTextArea welcomeText = new JTextArea("The welcome page of this app serves as an entry point for Vehicle Management using static vehicular cloud computing. Users can choose to access either the \"Client\" or \"Owner\" functionality, where clients can request vehicle services and owners can provide a vehicle. This app facilitates vehicle management by connecting clients and owners through vehicular cloud computing for efficient, location-based vehicle solutions.");
-        welcomeText.setFont(new Font("Arial", Font.PLAIN, 18)); // Increase font size
+        welcomeText.setFont(new Font("Arial", Font.PLAIN, 18));
         welcomeText.setWrapStyleWord(true);
         welcomeText.setLineWrap(true);
         welcomeText.setOpaque(false);
         welcomeText.setEditable(false);
-        welcomeText.setMargin(new Insets(20, 20, 20, 20)); // Add margins for centering
+        welcomeText.setMargin(new Insets(20, 20, 20, 20));
 
         JScrollPane scrollPane = new JScrollPane(welcomeText);
-        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the text
+        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton startClientButton = new JButton("Client");
-        startClientButton.addActionListener(new ActionListener() {
+        JPanel centeredContent = new JPanel(new BorderLayout());
+        centeredContent.add(welcomeLabel, BorderLayout.NORTH);
+        centeredContent.add(scrollPane, BorderLayout.CENTER);
+        centeredContent.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        panel.add(centeredContent, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+        
+        JButton ownerButton = createStyledButton("Vehicle Owner", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Client");
+                cardLayout.show(cardPanel, "Vehicle Owner");
             }
         });
 
-        JButton startOwnerButton = new JButton("Owner");
-        startOwnerButton.addActionListener(new ActionListener() {
+        JButton clientButton = createStyledButton("Computation Resource Requestor", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Owner");
+                cardLayout.show(cardPanel, "Computation Resource Requestor");
             }
         });
 
-        panel.add(welcomeLabel, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(startClientButton, BorderLayout.WEST);
-        panel.add(startOwnerButton, BorderLayout.EAST);
+        JButton systemAdminButton = createStyledButton("System Admin", null);
+        
+        buttonPanel.add(ownerButton);
+        buttonPanel.add(clientButton);
+        buttonPanel.add(systemAdminButton);
+        
+        JButton backButton = createStyledButton("Back to Welcome", new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "Welcome");
+            }
+        });
+        buttonPanel.add(backButton);
+
+        panel.add(buttonPanel, BorderLayout.SOUTH);
 
         return panel;
     }
@@ -116,11 +124,11 @@ public class GUI {
 
     
 	private JPanel createClientPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
+		JPanel panel = new JPanel();
+	    panel.setLayout(new GridBagLayout());
+	    GridBagConstraints gbc = new GridBagConstraints();
+	    gbc.insets = new Insets(5, 5, 5, 5);
+	    gbc.anchor = GridBagConstraints.WEST;
 
         JLabel userIdLabel = new JLabel("Client ID:");
         clientIdField = new JTextField(20);
@@ -209,13 +217,19 @@ public class GUI {
                 saveClientInformation();
             }
         });
-
+        JButton backButton = new JButton("Back to Welcome");
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "Welcome"); // Show the welcome panel
+            }
+        });
         gbc.gridx = 0;
-        gbc.gridy = 9;
+        gbc.gridy = 10;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(submitButton, gbc);
+        panel.add(backButton, gbc);
 
         return panel;
     }
@@ -307,19 +321,27 @@ public class GUI {
                 saveOwnerInformation();
             }
         });
-
+        JButton backButton = new JButton("Back to Welcome");
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "Welcome"); // Show the welcome panel
+            }
+        });
         gbc.gridx = 0;
-        gbc.gridy = 8;
+        gbc.gridy = 9;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(submitButton, gbc);
+        panel.add(backButton, gbc);
 
         return panel;
     }
 
     private void saveInformationToFile(String type, String id, String info1, String info2) {
-        // Get the current timestamp
+        String encryptedData = encryptUserData(type, id, info1, info2);
+
+    	// Get the current timestamp
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String timestamp = dateFormat.format(new Date());
 
@@ -335,16 +357,23 @@ public class GUI {
             writer.newLine();
             writer.write("Info 2: " + info2);
             writer.newLine();
-
             // Optionally, you can write more information as needed
 
             JOptionPane.showMessageDialog(frame, "Information saved to file: " + filename, "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Error saving information to file.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+            JOptionPane.showMessageDialog(frame, "Error saving information to file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);}}
+        
 
-    private void saveClientInformation() {
+
+
+    private String encryptUserData(String type, String id, String info1, String info2) {
+		// TODO Auto-generated method stub
+        String encryptedData = "Encrypted Data: Type=" + type + ", ID=" + id + ", Info1=" + info1 + ", Info2=" + info2;
+        return encryptedData;
+
+	}
+
+	private void saveClientInformation() {
         String clientId = clientIdField.getText();
         String jobDurationInput = jobDurationField.getText();
         String jobDeadline = jobDeadlineField.getText();
