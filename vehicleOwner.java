@@ -1,3 +1,8 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
+import java.time.Duration;
+import java.sql.Date;
 import java.sql.Time;
 import java.util.*;
 
@@ -19,8 +24,16 @@ public class vehicleOwner extends User {
      * This method, so we may view how long the car has been parked
      * in another method
      */
+
+    // Altin
+    // Should take time stamp of when the car parks and add it to the vehicle date
+    // parked attribute //Timestamp here DONE?
     public void parkCar(String make, String model, int year, String plate) {
-        vehicle newVehicle = new vehicle(make, model, year, plate, true);
+        LocalDateTime timestamp = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH");
+        String formattedTimestamp = timestamp.format(formatter);
+        vehicle newVehicle = new vehicle(make, model, year, plate, true,
+                VCController.convertDateToHourInt(formattedTimestamp));
         this.vehicles.add(newVehicle);
         VCController.currentParkedVehicles.add(newVehicle);
     }
@@ -37,12 +50,25 @@ public class vehicleOwner extends User {
      * Notifies the VC that an owner's certain car
      * has left the parking lot
      */
+
+    // Altin
+    // Should print the amount of time that the car was in the lot, take a leave lot
+    // time stamp and subtract from park time stamp
     public void leaveLot(String licensePlate) {
+        // Put timestamp here
+        LocalDateTime leaveTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH");
+        String formattedTimestamp = leaveTime.format(formatter);
+        int leaveTime2 = VCController.convertDateToHourInt(formattedTimestamp);
 
         // Removes a job from the arraylist of jobs
         for (int i = 0; i < this.vehicles.size(); i++) {
             if (this.vehicles.get(i).getPlate() == licensePlate) {
+                // Time in lot = Timestamp - this.vehicles.get(i).getParkedTime();
+                int timeInLot = leaveTime2 - this.vehicles.get(i).getParkedTime();
+                // this.vehicles.get(i).setleftLotTime(Timestamp);
                 this.vehicles.remove(this.vehicles.get(i));
+                System.out.println("Thanks for parking with us, your lot has been in here for " + timeInLot + " hours");
             }
         }
         for (int i = 0; i < VCController.currentParkedVehicles.size(); i++) {
@@ -53,10 +79,7 @@ public class vehicleOwner extends User {
                 VCController.currentParkedVehicles.remove(VCController.currentParkedVehicles.get(i));
             }
         }
-    }
 
-    public Time timeParked() {
-        return null; // Returns the time at which a particular car was parked
     }
 
     public void viewPastVehicles() {
@@ -67,9 +90,20 @@ public class vehicleOwner extends User {
         }
     }
 
+    // Add time parked into here
+    // Should print the amount of tiem that the car was inthe lot, take a lot
+    // Time stamp and subtract from park time stamp
     public void viewVehicle(vehicle a) {
+
+        LocalDateTime idleTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH");
+        // Time in lot = Timestap - this.vehicles.get(i).getParkedTime()
+        String formattedTimestamp = idleTime.format(formatter);
+        int idleTime2 = VCController.convertDateToHourInt(formattedTimestamp);
+        int parkedDuration = idleTime2 - a.getParkedTime();
         System.out.println("Make: " + a.getMake() + ", Model: " + a.getModel() + ", Year: " + a.getYear()
-                + ", License Plate: " + a.getPlate() + ", Parked Status: " + a.getParked());
+                + ", License Plate: " + a.getPlate() + ", Parked Status: " + a.getParked() + ", Total Time Parked:"
+                + parkedDuration + " hours");
 
     }
 }

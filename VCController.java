@@ -40,13 +40,15 @@ public class VCController {
         }
     }
 
+    // Add a completion time based on job duration.
     public void assignJobToVehicles() {
         Scanner in = new Scanner(System.in);
         System.out.println("Input an ID for the job you want to assign:");
         int jobID = in.nextInt();
         boolean jobIDExists = false;
         for (int i = 0; i < currentJobList.size(); i++) {
-            if (currentJobList.get(i).getStatus() == "Not Started" && currentJobList.get(i).getJobID() == jobID) {
+            if (currentJobList.get(i).getStatus() == "Not Started"
+                    || currentJobList.get(i).getStatus() == "Paused" && currentJobList.get(i).getJobID() == jobID) {
                 jobIDExists = true;
                 boolean exit3 = false;
                 while (!exit3) {
@@ -76,6 +78,7 @@ public class VCController {
         }
     }
 
+    // If job interrupted then change job duration based on how much progress made.
     public static void checkpoint(vehicle a) {
         // Print the job ID and the status of the job that the vehicle has been working
         // on
@@ -115,12 +118,27 @@ public class VCController {
                 + ", License Plate: " + a.getPlate() + ", Parked Status: " + a.getParked());
     }
 
-    static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-
     public static void viewJob(job a) {
         System.out.println("Job Title: " + a.getJobTitle() + ", Job Description: " + a.getJobDescription());
         System.out.println("Job Duration: " + a.getJobDuration() + " hours, Job ID: " + a.getJobID()
                 + ", Resource Requestor ID: " + a.getCRR_ID());
-        System.out.println("Status: " + a.getStatus() + ", Deadline: " + dateFormat.format(a.getDeadline()));
+        System.out.println("Status: " + a.getStatus() + ", Deadline(Hours from start): " + (a.getDeadline()));
+    }
+
+    public static int convertDateToHourInt(String dateString) {
+        // Split the date string into month, day, and hour components
+        String[] dateParts = dateString.split("[-\\s]");
+        if (dateParts.length != 3) {
+            throw new IllegalArgumentException("Invalid date format");
+        }
+
+        int month = Integer.parseInt(dateParts[0]);
+        int day = Integer.parseInt(dateParts[1]);
+        int hour = Integer.parseInt(dateParts[2]);
+
+        // Calculate the total hour count based on 30 days per month
+        int totalHours = (month - 1) * 30 * 24 + (day - 1) * 24 + hour;
+
+        return totalHours;
     }
 }
