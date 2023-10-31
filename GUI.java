@@ -1,5 +1,5 @@
 import javax.swing.*;
-import java.awt.*;import javax.swing.*;
+import java.awt.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -87,7 +87,7 @@ public class GUI {
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
-        
+
         JButton ownerButton = createStyledButton("Vehicle Owner", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -103,23 +103,16 @@ public class GUI {
         });
 
         JButton systemAdminButton = createStyledButton("System Admin", null);
-        
+
         buttonPanel.add(ownerButton);
         buttonPanel.add(clientButton);
         buttonPanel.add(systemAdminButton);
-        
-        JButton backButton = createStyledButton("Back to Welcome", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Welcome");
-            }
-        });
-        buttonPanel.add(backButton);
 
         panel.add(buttonPanel, BorderLayout.SOUTH);
 
         return panel;
     }
+
 
 
     
