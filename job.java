@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class job {
     private String jobTitle; // Title of the job
@@ -7,9 +9,10 @@ public class job {
     private int jobID; // The ID of the specific job
     public static int nextJobID = 100000;
     private int crr_ID; // The ID of the resoure requestor
-    private boolean assigned; // Assigned True or False
+    private ArrayList<String> assignedToVehiclePlates = new ArrayList<String>(); // A vehicle's ID. If not assigned, is
+                                                                                 // assigned 0.
     private Date deadline;// The deadline of the job (Use DateFormat to handle formatting)
-    private String status; // Completed | In Progress | Cancelled | Paused
+    private String status; // Completed | In Progress | Cancelled | Paused | Not Started
 
     public job(String title, String description, int duration, int crr_ID, boolean assigned, Date deadline,
             String status) {
@@ -18,7 +21,7 @@ public class job {
         this.jobDuration = duration;
         this.jobID = nextJobID++;
         this.crr_ID = crr_ID;
-        this.assigned = assigned;
+        this.assignedToVehiclePlates = null;
         this.status = status;
         this.deadline = deadline;
     }
@@ -59,12 +62,24 @@ public class job {
         return this.crr_ID;
     }
 
-    public void setAssigned(boolean assigned) {
-        this.assigned = assigned;
+    public ArrayList<String> getAssignedToVehicleID() {
+        return assignedToVehiclePlates;
     }
 
-    public boolean getAssigned() {
-        return this.assigned;
+    public void assignVehiclesToJob(ArrayList<String> vehiclePlates) {
+        this.assignedToVehiclePlates = vehiclePlates;
+    }
+
+    public void addVehicleIdToJob(String vehiclePlate) {
+        assignedToVehiclePlates.add(vehiclePlate);
+    }
+
+    public void removeVehicleIdToJob(String vehiclePlate) {
+        for (int i = 0; i < assignedToVehiclePlates.size(); i++) {
+            if (assignedToVehiclePlates.get(i) == vehiclePlate) {
+                assignedToVehiclePlates.remove(assignedToVehiclePlates.get(i));
+            }
+        }
     }
 
     public void setStatus(String newStat) {
@@ -82,4 +97,5 @@ public class job {
     public Date getDeadline() {
         return this.deadline;
     }
+
 }

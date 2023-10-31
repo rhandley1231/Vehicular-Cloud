@@ -25,7 +25,7 @@ public class vehicleOwner extends User {
         VCController.currentParkedVehicles.add(newVehicle);
     }
 
-    public void viewCurrentParkedVehicles() { // Status: In Progress | Paused
+    public void viewCurrentParkedVehicles() {
         for (int i = 0; i < this.vehicles.size(); i++) {
             if (this.vehicles.get(i).getParked() == true) {
                 viewVehicle(this.vehicles.get(i));
@@ -48,7 +48,8 @@ public class vehicleOwner extends User {
         for (int i = 0; i < VCController.currentParkedVehicles.size(); i++) {
             if (VCController.currentParkedVehicles.get(i).getPlate() == licensePlate) {
                 VCController.currentParkedVehicles.get(i).setParked(false);
-                VCController.pastParkedVehicles.add(VCController.currentParkedVehicles.get(i));
+                VCController.checkpoint(VCController.currentParkedVehicles.get(i));
+                server.pastParkedVehicles.add(VCController.currentParkedVehicles.get(i));
                 VCController.currentParkedVehicles.remove(VCController.currentParkedVehicles.get(i));
             }
         }

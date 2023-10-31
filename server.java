@@ -1,9 +1,20 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
 public class server {
-    private ArrayList<job> jobHistory = new ArrayList<job>();
-    private ArrayList<vehicle> lotHistory = new ArrayList<vehicle>();
-    public server(ArrayList<job> jH, ArrayList<vehicle> lH) {
-        this.jobHistory = jH;
-        this.lotHistory = lH;
+    public static List<job> pastJobList = new ArrayList<job>();
+    public static List<vehicle> pastParkedVehicles = new ArrayList<vehicle>();
+
+    public void viewPastJobs() {
+        for (int i = 0; i < pastJobList.size(); i++) {
+            VCController.viewJob(pastJobList.get(i));
+        }
     }
+
+    public void viewPastParkedVehicles() {
+        for (int i = 0; i < pastParkedVehicles.size(); i++) {
+            VCController.viewVehicle(pastParkedVehicles.get(i));
+        }
+    }
+
 }
