@@ -18,9 +18,9 @@ public class GUI {
 	private JPanel clientPanel;
 	private JPanel ownerPanel;
 
-	private JTextField userIdField;
-	private JTextField vehicleInfoField;
-	private JTextField residencyTimeField;
+    private JTextField usernameField;
+    private JTextField passwordField;
+    private JTextField residencyTimeField;
 
 	private JTextField clientIdField;
 	private JTextField jobDurationField;
@@ -316,100 +316,84 @@ public class GUI {
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.anchor = GridBagConstraints.WEST;
 
-		JLabel userIdLabel = new JLabel("Owner ID:");
-		userIdField = new JTextField(20);
+        JLabel usernameLabel = new JLabel("Username:");
+        usernameField = new JTextField(20);
 
-		JLabel vehicleInfoLabel = new JLabel("Vehicle Info:");
-		vehicleInfoField = new JTextField(20);
+        JLabel PasswordLabel = new JLabel("Password:");
+        passwordField = new JTextField(20);
 
-		JLabel residencyTimeLabel = new JLabel("Residency Time:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(usernameLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        panel.add(usernameField, gbc);
 
-		// Add separate fields for month, day, year, hour, and minute
-		JTextField monthField = new JTextField(4);
-		JTextField dayField = new JTextField(4);
-		JTextField yearField = new JTextField(4);
-		JTextField hourField = new JTextField(4);
-		JTextField minuteField = new JTextField(4);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(5, 5, 5, 5); // Adjust the insets for spacing
+        panel.add(PasswordLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        panel.add(passwordField, gbc);
 
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		panel.add(userIdLabel, gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
-		panel.add(userIdField, gbc);
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveOwnerInformation();
+            }
+        });
+        JButton newUserButton = new JButton("New User"); // Create a "New User" button
+        newUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Add code to switch to the "NewUserPanel" here
+                // You'll need to define and implement "NewUserPanel"
+            }
+        });
+        JButton backButton = new JButton("Back to Welcome");
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "Welcome"); // Show the welcome panel
+            }
+        });
 
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		panel.add(vehicleInfoLabel, gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 1;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
-		panel.add(vehicleInfoField, gbc);
+        // Set preferred size for the buttons
+        Dimension buttonSize = new Dimension(100, 25);
+        Dimension backButtonSize = new Dimension(150, 25); // Adjust the dimensions as needed
+        loginButton.setPreferredSize(buttonSize);
+        newUserButton.setPreferredSize(buttonSize);
+        backButton.setPreferredSize(backButtonSize);
 
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		panel.add(residencyTimeLabel, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 0; // Moved the "Back to Welcome" button to the top left corner
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST; // Adjusted the anchor to align the button on the left
+        gbc.insets = new Insets(5, 5, 60, 5); // Added 20px spacing below the button
+        panel.add(backButton, gbc);
 
-		// Add labels and fields for month, day, year, hour, and minute for residency
-		// time
-		gbc.gridx = 0;
-		gbc.gridy = 3;
-		panel.add(new JLabel("Month:"), gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 3;
-		panel.add(monthField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 2; // Adjusted the grid y-coordinate for the login button
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(5, 5, 20, 5); // Added 20px spacing below the button
+        panel.add(newUserButton, gbc);
 
-		gbc.gridx = 0;
-		gbc.gridy = 4;
-		panel.add(new JLabel("Day:"), gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 4;
-		panel.add(dayField, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 5;
-		panel.add(new JLabel("Year:"), gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 5;
-		panel.add(yearField, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 6;
-		panel.add(new JLabel("Hour:"), gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 6;
-		panel.add(hourField, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 7;
-		panel.add(new JLabel("Minute:"), gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 7;
-		panel.add(minuteField, gbc);
-
-		JButton submitButton = new JButton("Submit");
-		submitButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				saveOwnerInformation();
-			}
-		});
-		JButton backButton = new JButton("Back to Welcome");
-		backButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cardLayout.show(cardPanel, "Welcome"); // Show the welcome panel
-			}
-		});
-		gbc.gridx = 0;
-		gbc.gridy = 9;
-		gbc.gridwidth = 2;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.CENTER;
-		panel.add(backButton, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 2; // Adjusted the grid y-coordinate for the login button
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(5, 5, 20, 5); // Added 20px spacing below the button
+        panel.add(loginButton, gbc);
 
 		return panel;
 	}
@@ -488,10 +472,10 @@ public class GUI {
 		jobDeadlineField.setText("");
 	}
 
-	private void saveOwnerInformation() {
-		String ownerId = userIdField.getText();
-		String vehicleInfo = vehicleInfoField.getText();
-		String residencyTimeInput = residencyTimeField.getText();
+    private void saveOwnerInformation() {
+        String ownerId = usernameField.getText();
+        String vehicleInfo = passwordField.getText();
+        String residencyTimeInput = residencyTimeField.getText();
 
 		int hours = 0;
 		int minutes = 0;
@@ -520,11 +504,11 @@ public class GUI {
 		// Save information to a file with a timestamp
 		saveInformationToFile("Owner", ownerId, vehicleInfo, residencyTimeInput);
 
-		// Clear fields
-		userIdField.setText("");
-		vehicleInfoField.setText("");
-		residencyTimeField.setText("");
-	}
+        // Clear fields
+        usernameField.setText("");
+        passwordField.setText("");
+        residencyTimeField.setText("");
+    }
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
