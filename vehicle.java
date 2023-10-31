@@ -6,6 +6,7 @@ public class vehicle {
     private int year; // We can realistically pass the year as an int, date formating isn't necessary
     private String plate; // License plate number
     private boolean parked; // Parked True/False
+    private int assignedToJobID;
     // private Date parked;
     // private Date leftLot;
 
@@ -15,6 +16,7 @@ public class vehicle {
         this.year = year;
         this.plate = plate;
         this.parked = parked;
+        this.assignedToJobID = 0;
     }
 
     public void setMake(String make) {
@@ -55,5 +57,13 @@ public class vehicle {
 
     public boolean getParked() {
         return parked;
+    }
+
+    public void setAssignedToJobID(int JobID) {
+        this.assignedToJobID = JobID;
+    }
+
+    public int getAssignedToJobID() {
+        return assignedToJobID;
     }
 }

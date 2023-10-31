@@ -20,9 +20,10 @@ public class computationalResourceRequestor extends User {
     // Adds a job to the arraylist of jobs for the owner
     // Needs to go through the CRR's list of Jobs and Display the Necessary
     // Information about the Job
-    public void viewCurrentJobs() { // Status: In Progress | Paused
+    public void viewCurrentJobs() { // Status: In Progress | Paused | Not Started
         for (int i = 0; i < this.jobList.size(); i++) {
-            if (this.jobList.get(i).getStatus() == "In Progress" || this.jobList.get(i).getStatus() == "Paused") {
+            if (this.jobList.get(i).getStatus() == "In Progress" || this.jobList.get(i).getStatus() == "Paused"
+                    || this.jobList.get(i).getStatus() == "Not Started") {
                 viewJob(this.jobList.get(i));
             }
         }
@@ -38,7 +39,7 @@ public class computationalResourceRequestor extends User {
         for (int i = 0; i < VCController.currentJobList.size(); i++) {
             if (VCController.currentJobList.get(i).getJobID() == jobID) {
                 VCController.currentJobList.get(i).setStatus("Cancelled");
-                VCController.pastJobList.add(VCController.currentJobList.get(i));
+                server.pastJobList.add(VCController.currentJobList.get(i));
                 VCController.currentJobList.remove(VCController.currentJobList.get(i));
             }
         }
