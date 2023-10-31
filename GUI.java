@@ -1,12 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 public class GUI {
@@ -38,10 +38,12 @@ public class GUI {
         welcomePanel = createWelcomePanel();
         clientPanel = createClientPanel();
         ownerPanel = createOwnerPanel();
+        JPanel adminLoginPanel = createSystemAdminPanel(); // Create the System Admin login panel
 
         cardPanel.add(welcomePanel, "Welcome");
         cardPanel.add(clientPanel, "Computation Resource Requestor");
         cardPanel.add(ownerPanel, "Vehicle Owner");
+        cardPanel.add(adminLoginPanel, "AdminPanel"); // Add the System Admin login panel to the card layout
 
         frame.add(cardPanel);
 
@@ -56,6 +58,68 @@ public class GUI {
             button.addActionListener(actionListener);
         }
         return button;
+    }
+    private JPanel createSystemAdminPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        JLabel adminIdLabel = new JLabel("Admin ID:");
+        JTextField adminIdField = new JTextField(20);
+
+        JLabel passwordLabel = new JLabel("Password:");
+        JPasswordField passwordField = new JPasswordField(20);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(adminIdLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        panel.add(adminIdField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(passwordLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        panel.add(passwordField, gbc);
+
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String adminId = adminIdField.getText();
+                char[] password = passwordField.getPassword();
+                if (authenticateAdmin(adminId, password)) {
+                    cardLayout.show(cardPanel, "AdminPanel");
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Invalid credentials. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                passwordField.setText("");
+            }
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(loginButton, gbc);
+
+        return panel;
+    }
+
+    private boolean authenticateAdmin(String adminId, char[] password) {
+        // Implement your authentication logic here
+        // Compare adminId and password with your predefined values or check against a database
+        // Return true if authentication is successful, otherwise return false
+        return adminId.equals("admin") && Arrays.equals(password, "adminPassword".toCharArray());
     }
 
     private JPanel createWelcomePanel() {
@@ -102,7 +166,12 @@ public class GUI {
             }
         });
 
-        JButton systemAdminButton = createStyledButton("System Admin", null);
+        JButton systemAdminButton = createStyledButton("System Admin", new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "AdminPanel"); // Show the System Admin login panel
+            }
+        });
 
         buttonPanel.add(ownerButton);
         buttonPanel.add(clientButton);
@@ -112,6 +181,7 @@ public class GUI {
 
         return panel;
     }
+
 
 
 
@@ -330,6 +400,7 @@ public class GUI {
 
         return panel;
     }
+    
 
     private void saveInformationToFile(String type, String id, String info1, String info2) {
         String encryptedData = encryptUserData(type, id, info1, info2);
