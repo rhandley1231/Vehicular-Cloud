@@ -1,0 +1,6 @@
+2023-10-03 11:21:52 - Client ID: JimmyMcGill, Job Duration: 7 hours, Job Deadline: October 3, 2023
+2023-10-03 11:22:59 - Owner ID: WalterWhite, Vehicle Info: 2004 Pontiac Aztec, Residency Time: 10 Hours
+2023-10-04 14:52:15 - Client ID: 100, Info1: 2 Hours, Info2: October 25, 2023
+2023-10-04 14:54:37 - Owner ID: 200, Info1: Ford Mustang, Info2: 5 hours
+2023-10-04 14:55:26 - Owner ID: 300, Info1: Honda CRV, Info2: 6 Hours
+2023-10-04 22:54:33 - Client ID: 1, Info1: 2, Info2: 3
