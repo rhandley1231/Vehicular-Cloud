@@ -1,6 +1,7 @@
 package classes;
+import java.sql.Date;
 import java.text.DateFormat;
-
+import java.time.LocalDateTime;
 public class vehicle {
     private String make; // for the make of the car
     private String model; // for the model of the car
@@ -8,16 +9,21 @@ public class vehicle {
     private String plate; // License plate number
     private boolean parked; // Parked True/False
     private int assignedToJobID;
-    // private Date parked;
-    // private Date leftLot;
+    //tranfered from the Ben branch worked on by Altin and Ben
+    private int parkedTime;
+    private int leftLotTime;
 
-    public vehicle(String make, String model, int year, String plate, boolean parked) {
+
+    public vehicle(String make, String model, int year, String plate, boolean parked,
+    int parkedTime) {
         this.make = make;
         this.model = model;
         this.year = year;
         this.plate = plate;
         this.parked = parked;
         this.assignedToJobID = 0;
+        this.parkedTime = parkedTime;
+        this.leftLotTime = 0;
     }
 
     public void setMake(String make) {
@@ -66,5 +72,21 @@ public class vehicle {
 
     public int getAssignedToJobID() {
         return assignedToJobID;
+    }
+    //From Ben Branch as well
+    public void setParkedTime(int parkedTime) {
+        this.parkedTime = parkedTime;
+    }
+
+    public int getParkedTime() {
+        return parkedTime;
+    }
+
+    public void setLeftLotTime(int leftLotTime) {
+        this.leftLotTime = leftLotTime;
+    }
+
+    public int getLeftLotTime() {
+        return leftLotTime;
     }
 }
