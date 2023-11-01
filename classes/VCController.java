@@ -1,21 +1,26 @@
 package classes;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class VCController {
-    public static List<job> currentJobList = new ArrayList<job>();
-    public static List<vehicle> currentParkedVehicles = new ArrayList<vehicle>();
-    public static List<computationalResourceRequestor> computationalResourceRequestors = new ArrayList<computationalResourceRequestor>();
-    public static List<vehicleOwner> vehicleOwners = new ArrayList<vehicleOwner>();
+    public static ArrayList<job> currentJobList = new ArrayList<job>();
+    public static ArrayList<vehicle> currentParkedVehicles = new ArrayList<vehicle>();
+    public static ArrayList<computationalResourceRequestor> computationalResourceRequestors = new ArrayList<computationalResourceRequestor>();
+    public static ArrayList<vehicleOwner> vehicleOwners = new ArrayList<vehicleOwner>();
 
     public static String password; // Will not have a setter because a random password should be given to the
     // garage owner/admin to access this classes features
 
     // Completion time algorithm
-    public List<Integer> jobCompletion(int[] jobTimes) {
-        List<Integer> jobCompletionTimes = new ArrayList<>();
+    public static ArrayList<Integer> jobCompletion() {
+        ArrayList<Integer> jobTimes = new ArrayList<Integer>();
+        for (int i = 0; i < currentJobList.size(); i++) {
+            jobTimes.add(currentJobList.get(i).getJobDuration());
+        }
+        ArrayList<Integer> jobCompletionTimes = new ArrayList<Integer>();
         int totalTime = 0;
         for (int i : jobTimes) {
             totalTime += i;
@@ -121,8 +126,7 @@ public class VCController {
 
     public static void viewJob(job a) {
         System.out.println("Job Title: " + a.getJobTitle() + ", Job Description: " + a.getJobDescription());
-        System.out.println("Job Duration: " + a.getJobDuration() + " hours, Job ID: " + a.getJobID()
-                + ", Resource Requestor ID: " + a.getCRR_ID());
+        System.out.println("Job Duration: " + a.getJobDuration() + " hours, Job ID: " + a.getJobID());
         System.out.println("Status: " + a.getStatus() + ", Deadline(Hours from start): " + (a.getDeadline()));
     }
 

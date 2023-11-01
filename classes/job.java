@@ -1,4 +1,5 @@
 package classes;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,19 +10,18 @@ public class job {
     private int jobDuration; // To be passed in as an estimate to the nearest hour
     private int jobID; // The ID of the specific job
     public static int nextJobID = 100000;
-    private int crr_ID; // The ID of the resoure requestor
+    // private int crr_ID; // The ID of the resoure requestor
     private ArrayList<String> assignedToVehiclePlates = new ArrayList<String>(); // A vehicle's ID. If not assigned, is
                                                                                  // assigned 0.
     private Date deadline;// The deadline of the job (Use DateFormat to handle formatting)
     private String status; // Completed | In Progress | Cancelled | Paused | Not Started
 
-    public job(String title, String description, int duration, int crr_ID, boolean assigned, Date deadline,
+    public job(String title, String description, int duration, boolean assigned, Date deadline,
             String status) {
         this.jobTitle = title;
         this.jobDescription = description;
         this.jobDuration = duration;
         this.jobID = nextJobID++;
-        this.crr_ID = crr_ID;
         this.assignedToVehiclePlates = null;
         this.status = status;
         this.deadline = deadline;
@@ -55,13 +55,13 @@ public class job {
         return this.jobID;
     }
 
-    public void setCRR_ID(int newID) {
-        this.crr_ID = newID;
-    }
+    // public void setCRR_ID(int newID) {
+    // this.crr_ID = newID;
+    // }
 
-    public int getCRR_ID() {
-        return this.crr_ID;
-    }
+    // public int getCRR_ID() {
+    // return this.crr_ID;
+    // }
 
     public ArrayList<String> getAssignedToVehicleID() {
         return assignedToVehiclePlates;

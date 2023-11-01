@@ -14,7 +14,7 @@ public class computationalResourceRequestor extends User {
     // Methods for the Job Owner Class
     public void createJob(String jobTitle, String jobDescription, int jobDuration, int crr_ID, boolean assigned,
             Date deadline, String status) {
-        job newJob = new job(jobTitle, jobDescription, jobDuration, crr_ID, assigned, deadline, status);
+        job newJob = new job(jobTitle, jobDescription, jobDuration, assigned, deadline, status);
         this.jobList.add(newJob);
         VCController.currentJobList.add(newJob);
     }
@@ -59,8 +59,7 @@ public class computationalResourceRequestor extends User {
 
     public void viewJob(job a) {
         System.out.println("Job Title: " + a.getJobTitle() + ", Job Description: " + a.getJobDescription());
-        System.out.println("Job Duration: " + a.getJobDuration() + " hours, Job ID: " + a.getJobID()
-                + ", Resource Requestor ID: " + a.getCRR_ID());
+        System.out.println("Job Duration: " + a.getJobDuration() + " hours, Job ID: " + a.getJobID());
         System.out.println("Status: " + a.getStatus() + ", Deadline: " + dateFormat.format(a.getDeadline()));
     }
 
