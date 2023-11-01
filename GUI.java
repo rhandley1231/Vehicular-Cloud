@@ -33,6 +33,7 @@ public class GUI {
     private JTextField plateField;
     private JTextField lengthOfStayField;
     private JComboBox<String> lengthOfStayUnitComboBox;
+	private JPanel vccHomePanel;
 
     private JPanel departurePanel;
 
@@ -51,6 +52,7 @@ public class GUI {
 		voHomePanel = createVOHomePanel();
         departurePanel = createDeparturePanel();
 		JPanel adminLoginPanel = createSystemAdminPanel(); // Create the System Admin login panel
+		vccHomePanel = createVCCHomePanel();
 
 		cardPanel.add(welcomePanel, "Welcome");
 		cardPanel.add(clientPanel, "Computation Resource Requestor");
@@ -58,6 +60,7 @@ public class GUI {
 		cardPanel.add(adminLoginPanel, "AdminPanel"); // Add the System Admin login panel to the card layout
 		cardPanel.add(voHomePanel, "VOHome");
 		cardPanel.add(departurePanel, "Departure");
+		cardPanel.add(vccHomePanel, "VCCHome");
 
 		frame.add(cardPanel);
 
@@ -100,7 +103,7 @@ public class GUI {
 			public void actionPerformed(ActionEvent e) {
 				char[] password = passwordField.getPassword();
 				if (authenticateAdmin(password)) {
-					cardLayout.show(cardPanel, "AdminPanel");
+					cardLayout.show(cardPanel, "VCCHome");
 				} else {
 					JOptionPane.showMessageDialog(frame, "Invalid credentials. Please try again.", "Error",
 							JOptionPane.ERROR_MESSAGE);
@@ -136,7 +139,16 @@ public class GUI {
 		// Compare adminId and password with your predefined values or check against a
 		// database
 		// Return true if authentication is successful, otherwise return false
-		return Arrays.equals(password, "adminPassword".toCharArray());
+	
+		if (Arrays.equals(password, "password".toCharArray())) {
+			// If authentication is successful, show the VCCHome panel
+			cardLayout.show(cardPanel, "VCCHome");
+			return true;
+		} else {
+			JOptionPane.showMessageDialog(frame, "Invalid credentials. Please try again.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
 	}
 
 	private JPanel createWelcomePanel() {
@@ -197,6 +209,43 @@ public class GUI {
 
 		panel.add(buttonPanel, BorderLayout.SOUTH);
 
+		return panel;
+	}
+	private JPanel createVCCHomePanel() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.anchor = GridBagConstraints.CENTER;
+	
+		JLabel vccHomeLabel = new JLabel("Welcome to Vehicular Cloud Computing (VCC) Home");
+		vccHomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
+		vccHomeLabel.setHorizontalAlignment(SwingConstants.NORTH);
+	
+		JButton logoutButton = createStyledButton("Logout", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				cardLayout.show(cardPanel, "Welcome");
+			}
+		});
+	
+		// Apply the same styling as the "Park" button to the logout button
+		logoutButton.setBackground(new Color(51, 153, 255));
+		logoutButton.setFont(new Font("Arial", Font.PLAIN, 18));
+	
+		// Use the same GridBagConstraints (gbc) settings as the "Park" button
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.gridwidth = 2;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.CENTER;
+	
+		panel.add(vccHomeLabel, gbc);
+	
+		// Increment the grid y-coordinate for the logout button
+		gbc.gridy = 1;
+		panel.add(logoutButton, gbc);
+	
 		return panel;
 	}
 
