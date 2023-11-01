@@ -1,13 +1,14 @@
 package classes;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class computationalResourceRequestor extends User {
     private ArrayList<job> jobList = new ArrayList<job>();
 
-    public computationalResourceRequestor(String userName, String password, ArrayList<job> jobList) {
-        super(userName, password);
-        this.jobList = jobList;
+    public computationalResourceRequestor(String userName) {
+        super(userName);
+        this.jobList = null;
     }
 
     // Methods for the Job Owner Class
