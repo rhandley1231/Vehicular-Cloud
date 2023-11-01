@@ -220,7 +220,7 @@ public class GUI {
 	
 		JLabel vccHomeLabel = new JLabel("Welcome to Vehicular Cloud Computing (VCC) Home");
 		vccHomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		vccHomeLabel.setHorizontalAlignment(SwingConstants.NORTH);
+		vccHomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	
 		JButton logoutButton = createStyledButton("Logout", new ActionListener() {
 			@Override
