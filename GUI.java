@@ -308,6 +308,7 @@ public class GUI {
 		submitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				handleClientIDEntered(clientIdField.getText());
 				saveClientInformation(jobTitleField.getText(), jobDescriptionField.getText(), jobDeadlineField.getText());
 			}
 		});
@@ -405,6 +406,7 @@ public class GUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 writeOwnerInfoToFile();
+				handleUsernameEntered(usernameField.getText());
                 cardLayout.show(cardPanel, "VOHome");
             }
         });
@@ -613,6 +615,26 @@ public class GUI {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         return dateFormat.format(new Date());
     }
+	public void handleClientIDEntered(String clientID) {
+		try {
+			// Create a new computationalResourceRequestor instance
+			computationalResourceRequestor newRequestor = new computationalResourceRequestor(clientID);
+	
+			// Add the newRequestor to your list or collection of requestors
+			VCController.computationalResourceRequestors.add(newRequestor);
+	
+		} catch (NumberFormatException e) {
+			// Handle the case where clientID is not a valid integer
+			// You can show an error message to the user or take appropriate action.
+		}
+	}
+	public void handleUsernameEntered(String username) {
+		// Create a new vehicle owner instance
+		vehicleOwner newOwner = new vehicleOwner(username);
+		
+		// Add the newOwner to your list or collection of owners
+		VCController.vehicleOwners.add(newOwner);
+	}
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
