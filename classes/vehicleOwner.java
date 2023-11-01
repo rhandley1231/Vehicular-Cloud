@@ -1,4 +1,5 @@
 package classes;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
@@ -8,11 +9,13 @@ import java.sql.Time;
 import java.util.*;
 
 public class vehicleOwner extends User {
+    private String password;
     private ArrayList<vehicle> vehicles = new ArrayList<vehicle>();
 
-    public vehicleOwner(String userName, String password, ArrayList<vehicle> vehicles) {
-        super(userName, password);
-        this.vehicles = vehicles;
+    public vehicleOwner(String userName, String password) {
+        super(userName);
+        this.password = password;
+        this.vehicles = null;
     }
 
     /*
@@ -82,7 +85,7 @@ public class vehicleOwner extends User {
         }
     }
 
-     // Add time parked into here
+    // Add time parked into here
     // Should print the amount of tiem that the car was inthe lot, take a lot
     // Time stamp and subtract from park time stamp
     public void viewVehicle(vehicle a) {
@@ -97,4 +100,12 @@ public class vehicleOwner extends User {
                 + parkedDuration + " hours");
 
     }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+    
 }
