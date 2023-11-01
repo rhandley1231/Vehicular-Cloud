@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-
+import classes.*;
 public class GUI {
 	private JFrame frame;
 	private JPanel cardPanel;
@@ -26,6 +26,16 @@ public class GUI {
 	private JTextField jobDurationField;
 	private JTextField jobDeadlineField;
 
+	private JPanel voHomePanel;
+    private JTextField makeField;
+    private JTextField modelField;
+    private JTextField yearField;
+    private JTextField plateField;
+    private JTextField lengthOfStayField;
+    private JComboBox<String> lengthOfStayUnitComboBox;
+
+    private JPanel departurePanel;
+
 	public GUI() {
 		frame = new JFrame("The Utopia VCRTS");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,12 +48,16 @@ public class GUI {
 		welcomePanel = createWelcomePanel();
 		clientPanel = createClientPanel();
 		ownerPanel = createOwnerPanel();
+		voHomePanel = createVOHomePanel();
+        departurePanel = createDeparturePanel();
 		JPanel adminLoginPanel = createSystemAdminPanel(); // Create the System Admin login panel
 
 		cardPanel.add(welcomePanel, "Welcome");
 		cardPanel.add(clientPanel, "Computation Resource Requestor");
 		cardPanel.add(ownerPanel, "Vehicle Owner");
 		cardPanel.add(adminLoginPanel, "AdminPanel"); // Add the System Admin login panel to the card layout
+		cardPanel.add(voHomePanel, "VOHome");
+		cardPanel.add(departurePanel, "Departure");
 
 		frame.add(cardPanel);
 
@@ -66,21 +80,10 @@ public class GUI {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.anchor = GridBagConstraints.WEST;
-
-		JLabel adminIdLabel = new JLabel("Admin ID:");
-		JTextField adminIdField = new JTextField(20);
-
 		JLabel passwordLabel = new JLabel("Password:");
 		JPasswordField passwordField = new JPasswordField(20);
 
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		panel.add(adminIdLabel, gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
-		panel.add(adminIdField, gbc);
+		
 
 		gbc.gridx = 0;
 		gbc.gridy = 1;
@@ -95,9 +98,8 @@ public class GUI {
 		loginButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String adminId = adminIdField.getText();
 				char[] password = passwordField.getPassword();
-				if (authenticateAdmin(adminId, password)) {
+				if (authenticateAdmin(password)) {
 					cardLayout.show(cardPanel, "AdminPanel");
 				} else {
 					JOptionPane.showMessageDialog(frame, "Invalid credentials. Please try again.", "Error",
@@ -129,12 +131,12 @@ public class GUI {
 		return panel;
 	}
 
-	private boolean authenticateAdmin(String adminId, char[] password) {
+	private boolean authenticateAdmin(char[] password) {
 		// Implement your authentication logic here
 		// Compare adminId and password with your predefined values or check against a
 		// database
 		// Return true if authentication is successful, otherwise return false
-		return adminId.equals("admin") && Arrays.equals(password, "adminPassword".toCharArray());
+		return Arrays.equals(password, "adminPassword".toCharArray());
 	}
 
 	private JPanel createWelcomePanel() {
@@ -285,13 +287,13 @@ public class GUI {
 		gbc.gridy = 8;
 		panel.add(minuteField, gbc);
 
-		JButton submitButton = new JButton("Submit");
+		/*JButton submitButton = new JButton("Submit");
 		submitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				saveClientInformation();
 			}
-		});
+		});*/
 		JButton backButton = new JButton("Back to Welcome");
 		backButton.addActionListener(new ActionListener() {
 			@Override
@@ -310,16 +312,16 @@ public class GUI {
 	}
 
 	private JPanel createOwnerPanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.anchor = GridBagConstraints.WEST;
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
 
         JLabel usernameLabel = new JLabel("Username:");
         usernameField = new JTextField(20);
 
-        JLabel PasswordLabel = new JLabel("Password:");
+        JLabel passwordLabel = new JLabel("Password:");
         passwordField = new JTextField(20);
 
         gbc.gridx = 0;
@@ -333,8 +335,7 @@ public class GUI {
 
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.insets = new Insets(5, 5, 5, 5); // Adjust the insets for spacing
-        panel.add(PasswordLabel, gbc);
+        panel.add(passwordLabel, gbc);
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -345,18 +346,12 @@ public class GUI {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                saveOwnerInformation();
+                writeOwnerInfoToFile();
+                cardLayout.show(cardPanel, "VOHome");
             }
         });
-        JButton newUserButton = new JButton("New User"); // Create a "New User" button
-        newUserButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Add code to switch to the "NewUserPanel" here
-                // You'll need to define and implement "NewUserPanel"
-            }
-        });
-        JButton backButton = new JButton("Back to Welcome");
+
+        JButton backButton = new JButton("Back to Welcome"); // Add "Back to Welcome" button
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -368,146 +363,197 @@ public class GUI {
         Dimension buttonSize = new Dimension(100, 25);
         Dimension backButtonSize = new Dimension(150, 25); // Adjust the dimensions as needed
         loginButton.setPreferredSize(buttonSize);
-        newUserButton.setPreferredSize(buttonSize);
         backButton.setPreferredSize(backButtonSize);
 
         gbc.gridx = 0;
-        gbc.gridy = 0; // Moved the "Back to Welcome" button to the top left corner
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.WEST; // Adjusted the anchor to align the button on the left
-        gbc.insets = new Insets(5, 5, 60, 5); // Added 20px spacing below the button
-        panel.add(backButton, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2; // Adjusted the grid y-coordinate for the login button
+        gbc.gridy = 2;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(5, 5, 20, 5); // Added 20px spacing below the button
-        panel.add(newUserButton, gbc);
+        panel.add(backButton, gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 2; // Adjusted the grid y-coordinate for the login button
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(5, 5, 20, 5); // Added 20px spacing below the button
         panel.add(loginButton, gbc);
 
-		return panel;
-	}
+        return panel;
+    }
 
-	private void saveInformationToFile(String type, String id, String info1, String info2) {
-		String encryptedData = encryptUserData(type, id, info1, info2);
+	private JPanel createVOHomePanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
 
-		// Get the current timestamp
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String timestamp = dateFormat.format(new Date());
+        JLabel makeLabel = new JLabel("Make:");
+        makeField = new JTextField(20);
 
-		// Create a filename based on the timestamp
-		String filename = type + "_" + id + "_" + timestamp + ".txt";
+        JLabel modelLabel = new JLabel("Model:");
+        modelField = new JTextField(20);
 
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-			writer.write("Type: " + type);
-			writer.newLine();
-			writer.write("ID: " + id);
-			writer.newLine();
-			writer.write("Info 1: " + info1);
-			writer.newLine();
-			writer.write("Info 2: " + info2);
-			writer.newLine();
-			// Optionally, you can write more information as needed
+        JLabel yearLabel = new JLabel("Year:");
+        yearField = new JTextField(20);
 
-			JOptionPane.showMessageDialog(frame, "Information saved to file: " + filename, "Success",
-					JOptionPane.INFORMATION_MESSAGE);
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(frame, "Error saving information to file: " + e.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
-	}
+        JLabel plateLabel = new JLabel("Plate:");
+        plateField = new JTextField(20);
 
-	private String encryptUserData(String type, String id, String info1, String info2) {
-		// TODO Auto-generated method stub
-		String encryptedData = "Encrypted Data: Type=" + type + ", ID=" + id + ", Info1=" + info1 + ", Info2=" + info2;
-		return encryptedData;
+        JLabel lengthOfStayLabel = new JLabel("Length of Stay:");
+        lengthOfStayField = new JTextField(10);
 
-	}
+        lengthOfStayUnitComboBox = new JComboBox<>(new String[]{"hours", "days"});
 
-	private void saveClientInformation() {
-		String clientId = clientIdField.getText();
-		String jobDurationInput = jobDurationField.getText();
-		String jobDeadline = jobDeadlineField.getText();
+        JButton parkButton = new JButton("Park");
+        parkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                writeVehicleInfoToFile();
+                cardLayout.show(cardPanel, "Departure");
+            }
+        });
 
-		int hours = 0;
-		int minutes = 0;
+        gbc.gridx = 0;
+    gbc.gridy = 0;
+    panel.add(makeLabel, gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    panel.add(makeField, gbc);
 
-		// Validate and parse job duration input
-		try {
-			String[] parts = jobDurationInput.split(":");
-			if (parts.length == 2) {
-				hours = Integer.parseInt(parts[0]);
-				minutes = Integer.parseInt(parts[1]);
-			} else {
-				// Invalid format
-				JOptionPane.showMessageDialog(frame, "Invalid job duration format. Please use hh:mm (e.g., 02:30).",
-						"Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-		} catch (NumberFormatException e) {
-			// Invalid number format
-			JOptionPane.showMessageDialog(frame, "Invalid job duration format. Please use hh:mm (e.g., 02:30).",
-					"Error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
+    gbc.gridx = 0;
+    gbc.gridy = 1;
+    panel.add(modelLabel, gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 1;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    panel.add(modelField, gbc);
 
-		// Handle other validations as needed
+    gbc.gridx = 0;
+    gbc.gridy = 2;
+    panel.add(yearLabel, gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 2;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    panel.add(yearField, gbc);
 
-		// Save information to a file with a timestamp
-		saveInformationToFile("Client", clientId, jobDurationInput, jobDeadline);
+    gbc.gridx = 0;
+    gbc.gridy = 3;
+    panel.add(plateLabel, gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 3;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    panel.add(plateField, gbc);
 
-		// Clear fields
-		clientIdField.setText("");
-		jobDurationField.setText("");
-		jobDeadlineField.setText("");
-	}
+    gbc.gridx = 0;
+    gbc.gridy = 4;
+    panel.add(lengthOfStayLabel, gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 4;
+    panel.add(lengthOfStayField, gbc);
 
-    private void saveOwnerInformation() {
-        String ownerId = usernameField.getText();
-        String vehicleInfo = passwordField.getText();
-        String residencyTimeInput = residencyTimeField.getText();
+    gbc.gridx = 2;
+    gbc.gridy = 4;
+    panel.add(lengthOfStayUnitComboBox, gbc);
 
-		int hours = 0;
-		int minutes = 0;
+    // Add the "Park" button
+    gbc.gridx = 0;
+    gbc.gridy = 5;
+    gbc.gridwidth = 2;
+    gbc.fill = GridBagConstraints.NONE;
+    gbc.anchor = GridBagConstraints.CENTER;
+    panel.add(parkButton, gbc);
 
-		// Validate and parse residency time input
-		try {
-			String[] parts = residencyTimeInput.split(":");
-			if (parts.length == 2) {
-				hours = Integer.parseInt(parts[0]);
-				minutes = Integer.parseInt(parts[1]);
-			} else {
-				// Invalid format
-				JOptionPane.showMessageDialog(frame, "Invalid residency time format. Please use hh:mm (e.g., 02:30).",
-						"Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-		} catch (NumberFormatException e) {
-			// Invalid number format
-			JOptionPane.showMessageDialog(frame, "Invalid residency time format. Please use hh:mm (e.g., 02:30).",
-					"Error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
+        // Add the "Park" button
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(parkButton, gbc);
 
-		// Handle other validations as needed
+        return panel;
+    }
+	private JPanel createDeparturePanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.CENTER;
 
-		// Save information to a file with a timestamp
-		saveInformationToFile("Owner", ownerId, vehicleInfo, residencyTimeInput);
+        JButton departButton = new JButton("Depart");
+        departButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                writeDepartureTimestampToFile();
+                cardLayout.show(cardPanel, "Welcome");
+            }
+        });
 
-        // Clear fields
-        usernameField.setText("");
-        passwordField.setText("");
-        residencyTimeField.setText("");
+        // Add the "Depart" button
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(departButton, gbc);
+
+        return panel;
+    }
+
+	private void writeVehicleInfoToFile() {
+        String make = makeField.getText();
+        String model = modelField.getText();
+        String year = yearField.getText();
+        String plate = plateField.getText();
+        String lengthOfStay = lengthOfStayField.getText() + " " + lengthOfStayUnitComboBox.getSelectedItem();
+        String timestamp = getCurrentTimestamp();
+
+        String vehicleInfo = make + " : " + model + " : " + year + " : " + plate + " : " + lengthOfStay + " : " + timestamp;
+
+        // Write the vehicle information to the file vehicleOwners.txt
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("vehicleOwners.txt", true))) {
+            writer.write(vehicleInfo);
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Error writing vehicle information to file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+	private void writeOwnerInfoToFile() {
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+        String ownerInfo = username + " : " + password;
+
+        // Write the owner information to the file vehicleOwners.txt
+        try (BufferedWriter writer2 = new BufferedWriter(new FileWriter("vehicleOwners.txt", true))) {
+            writer2.write(ownerInfo);
+            writer2.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Error writing owner information to file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+	private void writeDepartureTimestampToFile() {
+        String timestamp = getCurrentTimestamp();
+
+        // Write the departure timestamp to the file vehicleOwners.txt
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("vehicleOwners.txt", true))) {
+            writer.write("Departure: " + timestamp);
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Error writing departure timestamp to file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+	private String getCurrentTimestamp() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        return dateFormat.format(new Date());
     }
 
 	public static void main(String[] args) {
