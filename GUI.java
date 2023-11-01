@@ -255,22 +255,19 @@ public class GUI {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.anchor = GridBagConstraints.WEST;
-
+	
 		JLabel userIdLabel = new JLabel("Client ID:");
 		clientIdField = new JTextField(20);
-
-		JLabel jobDurationLabel = new JLabel("Job Duration (hh:mm):");
-		jobDurationField = new JTextField(8);
-
-		JLabel jobDeadlineLabel = new JLabel("Job Deadline:");
-
-		// Add separate fields for month, day, year, hour, and minute
-		JTextField monthField = new JTextField(4);
-		JTextField dayField = new JTextField(4);
-		JTextField yearField = new JTextField(4);
-		JTextField hourField = new JTextField(4);
-		JTextField minuteField = new JTextField(4);
-
+	
+		JLabel jobTitleLabel = new JLabel("Job Title:");
+		JTextField jobTitleField = new JTextField(20);
+	
+		JLabel jobDescriptionLabel = new JLabel("Job Description:");
+		JTextField jobDescriptionField = new JTextField(20);
+	
+		JLabel jobDeadlineLabel = new JLabel("Job Deadline (mm/dd/yyyy hh:mm):");
+		JTextField jobDeadlineField = new JTextField(20);
+	
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		panel.add(userIdLabel, gbc);
@@ -279,70 +276,42 @@ public class GUI {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weightx = 1.0;
 		panel.add(clientIdField, gbc);
-
+	
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		panel.add(jobDurationLabel, gbc);
+		panel.add(jobTitleLabel, gbc);
 		gbc.gridx = 1;
 		gbc.gridy = 1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weightx = 1.0;
-		panel.add(jobDurationField, gbc);
-
-		// Add explanatory text for the job duration format
-		JLabel jobDurationFormatLabel = new JLabel("Format: hh:mm (e.g., 02:30 for 2 hours and 30 minutes)");
+		panel.add(jobTitleField, gbc);
+	
 		gbc.gridx = 0;
 		gbc.gridy = 2;
-		gbc.gridwidth = 2;
-		panel.add(jobDurationFormatLabel, gbc);
-
+		panel.add(jobDescriptionLabel, gbc);
+		gbc.gridx = 1;
+		gbc.gridy = 2;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1.0;
+		panel.add(jobDescriptionField, gbc);
+	
 		gbc.gridx = 0;
 		gbc.gridy = 3;
 		panel.add(jobDeadlineLabel, gbc);
-
-		// Add labels and fields for month, day, year, hour, and minute
-		gbc.gridx = 0;
-		gbc.gridy = 4;
-		panel.add(new JLabel("Month:"), gbc);
 		gbc.gridx = 1;
-		gbc.gridy = 4;
-		panel.add(monthField, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 5;
-		panel.add(new JLabel("Day:"), gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 5;
-		panel.add(dayField, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 6;
-		panel.add(new JLabel("Year:"), gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 6;
-		panel.add(yearField, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 7;
-		panel.add(new JLabel("Hour:"), gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 7;
-		panel.add(hourField, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 8;
-		panel.add(new JLabel("Minute:"), gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 8;
-		panel.add(minuteField, gbc);
-
-		/*JButton submitButton = new JButton("Submit");
+		gbc.gridy = 3;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1.0;
+		panel.add(jobDeadlineField, gbc);
+	
+		JButton submitButton = new JButton("Submit");
 		submitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				saveClientInformation();
+				saveClientInformation(jobTitleField.getText(), jobDescriptionField.getText(), jobDeadlineField.getText());
 			}
-		});*/
+		});
+	
 		JButton backButton = new JButton("Back to Welcome");
 		backButton.addActionListener(new ActionListener() {
 			@Override
@@ -350,14 +319,54 @@ public class GUI {
 				cardLayout.show(cardPanel, "Welcome"); // Show the welcome panel
 			}
 		});
+	
 		gbc.gridx = 0;
-		gbc.gridy = 10;
+		gbc.gridy = 4;
 		gbc.gridwidth = 2;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.CENTER;
 		panel.add(backButton, gbc);
-
+	
+		gbc.gridx = 1;
+		gbc.gridy = 4; // Adjusted the grid y-coordinate for the submit button
+		gbc.gridwidth = 2;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.CENTER;
+		panel.add(submitButton, gbc);
+	
 		return panel;
+	}
+	private void saveClientInformation(String jobTitle, String jobDescription, String jobDeadline) {
+		// Validate the job deadline date and time format
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+		dateFormat.setLenient(false); // Ensure strict date format checking
+	
+		try {
+			Date deadline = dateFormat.parse(jobDeadline);
+			Date now = new Date();
+	
+			if (deadline.before(now)) {
+				JOptionPane.showMessageDialog(frame, "Invalid deadline. Please enter a future date and time.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			} else {
+				String clientId = clientIdField.getText();
+				String timestamp = getCurrentTimestamp();
+	
+				String clientInfo = clientId + ", " + jobTitle + ", " + jobDescription + "\nDeadline:" + jobDeadline + ", " + timestamp;
+	
+				// Write the client information to the CRR.txt file in CSV format
+				try (BufferedWriter writer = new BufferedWriter(new FileWriter("CRR.txt", true))) {
+					writer.write(clientInfo);
+					writer.newLine();
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(frame, "Error writing client information to file: " + e.getMessage(), "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		} catch (java.text.ParseException e) {
+			JOptionPane.showMessageDialog(frame, "Invalid date and time format. Please use 'MM/dd/yyyy HH:mm'.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private JPanel createOwnerPanel() {
