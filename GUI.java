@@ -1,647 +1,307 @@
+import classes.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import classes.*;
+import java.util.ArrayList;
+
 public class GUI {
-	private JFrame frame;
-	private JPanel cardPanel;
-	private CardLayout cardLayout;
+    private JFrame frame;
+    private JPanel currentPanel;
+    private JTextField clientIDField, jobIDField, jobDurationField, deadlineField;
+    private JTextField vOIDField, makeField, modelField, plateField;
+    private JTextArea computationResultArea;
 
-	private JPanel welcomePanel; // Add the welcome panel
-	private JPanel clientPanel;
-	private JPanel ownerPanel;
+    public GUI() {
+        frame = new JFrame("Utopia VCRTS");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
 
-    private JTextField usernameField;
-    private JTextField passwordField;
-    private JTextField residencyTimeField;
+        createWelcomePanel();
 
-	private JTextField clientIdField;
-	private JTextField jobDurationField;
-	private JTextField jobDeadlineField;
+        frame.setVisible(true);
+    }
 
-	private JPanel voHomePanel;
-    private JTextField makeField;
-    private JTextField modelField;
-    private JTextField yearField;
-    private JTextField plateField;
-    private JTextField lengthOfStayField;
-    private JComboBox<String> lengthOfStayUnitComboBox;
-	private JPanel vccHomePanel;
+    private void createWelcomePanel() {
+        currentPanel = new JPanel();
+        frame.getContentPane().removeAll();
+        frame.add(currentPanel);
 
-    private JPanel departurePanel;
+        currentPanel.setLayout(new BorderLayout());
 
-	public GUI() {
-		frame = new JFrame("The Utopia VCRTS");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(400, 300);
+        JLabel welcomeLabel = new JLabel("Welcome to the Utopia VCRTS, here you can create jobs, manage vehicle and see computation times!");
+        currentPanel.add(welcomeLabel, BorderLayout.NORTH);
 
-		cardPanel = new JPanel();
-		cardLayout = new CardLayout();
-		cardPanel.setLayout(cardLayout);
+        JPanel buttonPanel = new JPanel();
+        currentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-		welcomePanel = createWelcomePanel();
-		clientPanel = createClientPanel();
-		ownerPanel = createOwnerPanel();
-		voHomePanel = createVOHomePanel();
-        departurePanel = createDeparturePanel();
-		JPanel adminLoginPanel = createSystemAdminPanel(); // Create the System Admin login panel
-		vccHomePanel = createVCCHomePanel();
+        JButton createJobButton = new JButton("Create Job");
+        JButton createVOandVButton = new JButton("Parking");
+        JButton computationTimeButton = new JButton("See Wait Time");
 
-		cardPanel.add(welcomePanel, "Welcome");
-		cardPanel.add(clientPanel, "Computation Resource Requestor");
-		cardPanel.add(ownerPanel, "Vehicle Owner");
-		cardPanel.add(adminLoginPanel, "AdminPanel"); // Add the System Admin login panel to the card layout
-		cardPanel.add(voHomePanel, "VOHome");
-		cardPanel.add(departurePanel, "Departure");
-		cardPanel.add(vccHomePanel, "VCCHome");
+        buttonPanel.add(createJobButton);
+        buttonPanel.add(createVOandVButton);
+        buttonPanel.add(computationTimeButton);
 
-		frame.add(cardPanel);
+        createJobButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createJobPanel();
+            }
+        });
 
-		frame.setVisible(true);
-	}
+        createVOandVButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createVOandVPanel();
+            }
+        });
 
-	private JButton createStyledButton(String text, ActionListener actionListener) {
-		JButton button = new JButton(text);
-		button.setBackground(new Color(51, 153, 255));
-		button.setFont(new Font("Arial", Font.PLAIN, 18));
-		if (actionListener != null) {
-			button.addActionListener(actionListener);
-		}
-		return button;
-	}
+        computationTimeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                computationTimePanel();
+                VCC.jobCompletion();
+            }
+        });
 
-	private JPanel createSystemAdminPanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.anchor = GridBagConstraints.WEST;
-		JLabel passwordLabel = new JLabel("Password:");
-		JPasswordField passwordField = new JPasswordField(20);
+        frame.revalidate();
+        frame.repaint();
+    }
 
-		
-
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		panel.add(passwordLabel, gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 1;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
-		panel.add(passwordField, gbc);
-
-		JButton loginButton = new JButton("Login");
-		loginButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				char[] password = passwordField.getPassword();
-				if (authenticateAdmin(password)) {
-					cardLayout.show(cardPanel, "VCCHome");
-				} else {
-					JOptionPane.showMessageDialog(frame, "Invalid credentials. Please try again.", "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-				passwordField.setText("");
-			}
-		});
-
-		JButton backButton = new JButton("Back to Welcome"); // Add "Back to Welcome" button
-		backButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cardLayout.show(cardPanel, "Welcome"); // Show the welcome panel
-			}
-		});
-
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.gridwidth = 2;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.CENTER;
-		panel.add(loginButton, gbc);
-
-		gbc.gridx = 0; // Place the "Back to Welcome" button on a new row
-		gbc.gridy = 3;
-		panel.add(backButton, gbc);
-
-		return panel;
-	}
-
-	private boolean authenticateAdmin(char[] password) {
-		// Implement your authentication logic here
-		// Compare adminId and password with your predefined values or check against a
-		// database
-		// Return true if authentication is successful, otherwise return false
-	
-		if (Arrays.equals(password, "password".toCharArray())) {
-			// If authentication is successful, show the VCCHome panel
-			cardLayout.show(cardPanel, "VCCHome");
-			return true;
-		} else {
-			JOptionPane.showMessageDialog(frame, "Invalid credentials. Please try again.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-	}
-
-	private JPanel createWelcomePanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.setBackground(new Color(230, 230, 230));
-
-		JLabel welcomeLabel = new JLabel("Welcome to Vehicle Management App");
-		welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-		JTextArea welcomeText = new JTextArea(
-				"The welcome page of this app serves as an entry point for Vehicle Management using static vehicular cloud computing. Users can choose to access either the \"Client\" or \"Owner\" functionality, where clients can request vehicle services and owners can provide a vehicle. This app facilitates vehicle management by connecting clients and owners through vehicular cloud computing for efficient, location-based vehicle solutions.");
-		welcomeText.setFont(new Font("Arial", Font.PLAIN, 18));
-		welcomeText.setWrapStyleWord(true);
-		welcomeText.setLineWrap(true);
-		welcomeText.setOpaque(false);
-		welcomeText.setEditable(false);
-		welcomeText.setMargin(new Insets(20, 20, 20, 20));
-
-		JScrollPane scrollPane = new JScrollPane(welcomeText);
-		scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-		JPanel centeredContent = new JPanel(new BorderLayout());
-		centeredContent.add(welcomeLabel, BorderLayout.NORTH);
-		centeredContent.add(scrollPane, BorderLayout.CENTER);
-		centeredContent.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-		panel.add(centeredContent, BorderLayout.CENTER);
-
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new FlowLayout());
-
-		JButton ownerButton = createStyledButton("Vehicle Owner", new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cardLayout.show(cardPanel, "Vehicle Owner");
-			}
-		});
-
-		JButton clientButton = createStyledButton("Computation Resource Requestor", new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cardLayout.show(cardPanel, "Computation Resource Requestor");
-			}
-		});
-
-		JButton systemAdminButton = createStyledButton("System Admin", new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cardLayout.show(cardPanel, "AdminPanel"); // Show the System Admin login panel
-			}
-		});
-
-		buttonPanel.add(ownerButton);
-		buttonPanel.add(clientButton);
-		buttonPanel.add(systemAdminButton);
-
-		panel.add(buttonPanel, BorderLayout.SOUTH);
-
-		return panel;
-	}
-	private JPanel createVCCHomePanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.anchor = GridBagConstraints.CENTER;
-	
-		JLabel vccHomeLabel = new JLabel("Welcome to Vehicular Cloud Computing (VCC) Home");
-		vccHomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		vccHomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-	
-		JButton logoutButton = createStyledButton("Logout", new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cardLayout.show(cardPanel, "Welcome");
-			}
-		});
-	
-		// Apply the same styling as the "Park" button to the logout button
-		logoutButton.setBackground(new Color(51, 153, 255));
-		logoutButton.setFont(new Font("Arial", Font.PLAIN, 18));
-	
-		// Use the same GridBagConstraints (gbc) settings as the "Park" button
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.gridwidth = 2;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.CENTER;
-	
-		panel.add(vccHomeLabel, gbc);
-	
-		// Increment the grid y-coordinate for the logout button
-		gbc.gridy = 1;
-		panel.add(logoutButton, gbc);
-	
-		return panel;
-	}
-
-	private JPanel createClientPanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.anchor = GridBagConstraints.WEST;
-	
-		JLabel userIdLabel = new JLabel("Client ID:");
-		clientIdField = new JTextField(20);
-	
-		JLabel jobTitleLabel = new JLabel("Job Title:");
-		JTextField jobTitleField = new JTextField(20);
-	
-		JLabel jobDescriptionLabel = new JLabel("Job Description:");
-		JTextField jobDescriptionField = new JTextField(20);
-	
-		JLabel jobDeadlineLabel = new JLabel("Job Deadline (mm/dd/yyyy hh:mm):");
-		JTextField jobDeadlineField = new JTextField(20);
-	
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		panel.add(userIdLabel, gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
-		panel.add(clientIdField, gbc);
-	
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		panel.add(jobTitleLabel, gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 1;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
-		panel.add(jobTitleField, gbc);
-	
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		panel.add(jobDescriptionLabel, gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 2;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
-		panel.add(jobDescriptionField, gbc);
-	
-		gbc.gridx = 0;
-		gbc.gridy = 3;
-		panel.add(jobDeadlineLabel, gbc);
-		gbc.gridx = 1;
-		gbc.gridy = 3;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
-		panel.add(jobDeadlineField, gbc);
-	
-		JButton submitButton = new JButton("Submit");
-		submitButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				handleClientIDEntered(clientIdField.getText());
-				saveClientInformation(jobTitleField.getText(), jobDescriptionField.getText(), jobDeadlineField.getText());
-			}
-		});
-	
-		JButton backButton = new JButton("Back to Welcome");
-		backButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cardLayout.show(cardPanel, "Welcome"); // Show the welcome panel
-			}
-		});
-	
-		gbc.gridx = 0;
-		gbc.gridy = 4;
-		gbc.gridwidth = 2;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.CENTER;
-		panel.add(backButton, gbc);
-	
-		gbc.gridx = 1;
-		gbc.gridy = 4; // Adjusted the grid y-coordinate for the submit button
-		gbc.gridwidth = 2;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.CENTER;
-		panel.add(submitButton, gbc);
-	
-		return panel;
-	}
-	private void saveClientInformation(String jobTitle, String jobDescription, String jobDeadline) {
-		// Validate the job deadline date and time format
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-		dateFormat.setLenient(false); // Ensure strict date format checking
-	
-		try {
-			Date deadline = dateFormat.parse(jobDeadline);
-			Date now = new Date();
-	
-			if (deadline.before(now)) {
-				JOptionPane.showMessageDialog(frame, "Invalid deadline. Please enter a future date and time.", "Error",
-						JOptionPane.ERROR_MESSAGE);
-			} else {
-				String clientId = clientIdField.getText();
-				String timestamp = getCurrentTimestamp();
-	
-				String clientInfo = clientId + ", " + jobTitle + ", " + jobDescription + "\nDeadline:" + jobDeadline + ", " + timestamp;
-	
-				// Write the client information to the CRR.txt file in CSV format
-				try (BufferedWriter writer = new BufferedWriter(new FileWriter("CRR.txt", true))) {
-					writer.write(clientInfo);
-					writer.newLine();
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(frame, "Error writing client information to file: " + e.getMessage(), "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		} catch (java.text.ParseException e) {
-			JOptionPane.showMessageDialog(frame, "Invalid date and time format. Please use 'MM/dd/yyyy HH:mm'.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	private JPanel createOwnerPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
+    private void createJobPanel() {
+        currentPanel = new JPanel();
+        frame.getContentPane().removeAll();
+        frame.add(currentPanel);
+    
+        currentPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        JLabel usernameLabel = new JLabel("Username:");
-        usernameField = new JTextField(20);
-
-        JLabel passwordLabel = new JLabel("Password:");
-        passwordField = new JTextField(20);
-
+        gbc.anchor = GridBagConstraints.WEST; // Align components to the left
+    
+        clientIDField = new JTextField(20);
+        jobIDField = new JTextField(20);
+        jobDurationField = new JTextField(20);
+        deadlineField = new JTextField(20);
+    
+        JLabel clientIDLabel = new JLabel("Client ID (Number):");
+        JLabel jobIDLabel = new JLabel("Job ID (Number):");
+        JLabel jobDurationLabel = new JLabel("Job Duration (Hours):");
+        JLabel deadlineLabel = new JLabel("Deadline (mm/dd/yyyy):");
+    
+        JButton submitButton = new JButton("Submit");
+        JButton goBackButton = new JButton("Go Back");
+    
+        // Add client ID label and field
         gbc.gridx = 0;
         gbc.gridy = 0;
-        panel.add(usernameLabel, gbc);
+        currentPanel.add(clientIDLabel, gbc);
         gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(usernameField, gbc);
-
+        currentPanel.add(clientIDField, gbc);
+    
+        // Add job ID label and field
         gbc.gridx = 0;
         gbc.gridy = 1;
-        panel.add(passwordLabel, gbc);
+        currentPanel.add(jobIDLabel, gbc);
         gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(passwordField, gbc);
-
-        JButton loginButton = new JButton("Login");
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                writeOwnerInfoToFile();
-				handleUsernameEntered(usernameField.getText());
-                cardLayout.show(cardPanel, "VOHome");
-            }
-        });
-
-        JButton backButton = new JButton("Back to Welcome"); // Add "Back to Welcome" button
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Welcome"); // Show the welcome panel
-            }
-        });
-
-        // Set preferred size for the buttons
-        Dimension buttonSize = new Dimension(100, 25);
-        Dimension backButtonSize = new Dimension(150, 25); // Adjust the dimensions as needed
-        loginButton.setPreferredSize(buttonSize);
-        backButton.setPreferredSize(backButtonSize);
-
+        currentPanel.add(jobIDField, gbc);
+    
+        // Add job duration label and field
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(backButton, gbc);
-
+        currentPanel.add(jobDurationLabel, gbc);
         gbc.gridx = 1;
-        gbc.gridy = 2; // Adjusted the grid y-coordinate for the login button
+        currentPanel.add(jobDurationField, gbc);
+    
+        // Add deadline label and field
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        currentPanel.add(deadlineLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(deadlineField, gbc);
+    
+        // Create a panel for buttons and add it at the bottom
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(submitButton);
+        buttonPanel.add(goBackButton);
+    
+        gbc.gridx = 0;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(loginButton, gbc);
+        gbc.anchor = GridBagConstraints.SOUTH;
+        currentPanel.add(buttonPanel, gbc);
+    
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String clientID = clientIDField.getText();
+                int client = Integer.parseInt(clientID);
+                int jobID = Integer.parseInt(jobIDField.getText());
+                int jobDuration = Integer.parseInt(jobDurationField.getText());
+                String deadline = deadlineField.getText();
+    
+                VCC.createJob(client, jobID, jobDuration, deadline);
+                JOptionPane.showMessageDialog(frame, "Job created successfully!");
+                createWelcomePanel();
+            }
+        });
+    
+        goBackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createWelcomePanel();
+            }
+        });
+    
+        frame.revalidate();
+        frame.repaint();
+    }    
 
-        return panel;
-    }
-
-	private JPanel createVOHomePanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
+    private void createVOandVPanel() {
+        currentPanel = new JPanel();
+        frame.getContentPane().removeAll();
+        frame.add(currentPanel);
+    
+        currentPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        JLabel makeLabel = new JLabel("Make:");
+        gbc.anchor = GridBagConstraints.WEST; // Align components to the left
+    
+        vOIDField = new JTextField(20);
         makeField = new JTextField(20);
-
-        JLabel modelLabel = new JLabel("Model:");
         modelField = new JTextField(20);
-
-        JLabel yearLabel = new JLabel("Year:");
-        yearField = new JTextField(20);
-
-        JLabel plateLabel = new JLabel("Plate:");
         plateField = new JTextField(20);
-
-        JLabel lengthOfStayLabel = new JLabel("Length of Stay:");
-        lengthOfStayField = new JTextField(10);
-
-        lengthOfStayUnitComboBox = new JComboBox<>(new String[]{"hours", "days"});
-
-        JButton parkButton = new JButton("Park");
-        parkButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                writeVehicleInfoToFile();
-                cardLayout.show(cardPanel, "Departure");
-            }
-        });
-
-        gbc.gridx = 0;
-    gbc.gridy = 0;
-    panel.add(makeLabel, gbc);
-    gbc.gridx = 1;
-    gbc.gridy = 0;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.weightx = 1.0;
-    panel.add(makeField, gbc);
-
-    gbc.gridx = 0;
-    gbc.gridy = 1;
-    panel.add(modelLabel, gbc);
-    gbc.gridx = 1;
-    gbc.gridy = 1;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.weightx = 1.0;
-    panel.add(modelField, gbc);
-
-    gbc.gridx = 0;
-    gbc.gridy = 2;
-    panel.add(yearLabel, gbc);
-    gbc.gridx = 1;
-    gbc.gridy = 2;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.weightx = 1.0;
-    panel.add(yearField, gbc);
-
-    gbc.gridx = 0;
-    gbc.gridy = 3;
-    panel.add(plateLabel, gbc);
-    gbc.gridx = 1;
-    gbc.gridy = 3;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.weightx = 1.0;
-    panel.add(plateField, gbc);
-
-    gbc.gridx = 0;
-    gbc.gridy = 4;
-    panel.add(lengthOfStayLabel, gbc);
-    gbc.gridx = 1;
-    gbc.gridy = 4;
-    panel.add(lengthOfStayField, gbc);
-
-    gbc.gridx = 2;
-    gbc.gridy = 4;
-    panel.add(lengthOfStayUnitComboBox, gbc);
-
-    // Add the "Park" button
-    gbc.gridx = 0;
-    gbc.gridy = 5;
-    gbc.gridwidth = 2;
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.CENTER;
-    panel.add(parkButton, gbc);
-
-        // Add the "Park" button
-        gbc.gridx = 0;
-        gbc.gridy = 7;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(parkButton, gbc);
-
-        return panel;
-    }
-	private JPanel createDeparturePanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.CENTER;
-
-        JButton departButton = new JButton("Depart");
-        departButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                writeDepartureTimestampToFile();
-                cardLayout.show(cardPanel, "Welcome");
-            }
-        });
-
-        // Add the "Depart" button
+    
+        JLabel vOIDLabel = new JLabel("Vehicle Owner ID (Number):");
+        JLabel makeLabel = new JLabel("Make:");
+        JLabel modelLabel = new JLabel("Model:");
+        JLabel plateLabel = new JLabel("License Plate:");
+    
+        JButton submitButton = new JButton("Submit");
+        JButton goBackButton = new JButton("Go Back");
+    
+        // Add Vehicle Owner ID label and field
         gbc.gridx = 0;
         gbc.gridy = 0;
-        panel.add(departButton, gbc);
-
-        return panel;
+        currentPanel.add(vOIDLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(vOIDField, gbc);
+    
+        // Add Make label and field
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        currentPanel.add(makeLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(makeField, gbc);
+    
+        // Add Model label and field
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        currentPanel.add(modelLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(modelField, gbc);
+    
+        // Add License Plate label and field
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        currentPanel.add(plateLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(plateField, gbc);
+    
+        // Create a panel for buttons and add it at the bottom
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(submitButton);
+        buttonPanel.add(goBackButton);
+    
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.SOUTH;
+        currentPanel.add(buttonPanel, gbc);
+    
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int vOID = Integer.parseInt(vOIDField.getText());
+                String make = makeField.getText();
+                String model = modelField.getText();
+                String plate = plateField.getText();
+    
+                VCC.createVOandV(vOID, make, model, plate);
+                JOptionPane.showMessageDialog(frame, "Vehicle Owner and Vehicle created successfully!");
+                createWelcomePanel();
+            }
+        });
+    
+        goBackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createWelcomePanel();
+            }
+        });
+    
+        frame.revalidate();
+        frame.repaint();
     }
+    
 
-	private void writeVehicleInfoToFile() {
-        String make = makeField.getText();
-        String model = modelField.getText();
-        String year = yearField.getText();
-        String plate = plateField.getText();
-        String lengthOfStay = lengthOfStayField.getText() + " " + lengthOfStayUnitComboBox.getSelectedItem();
-        String timestamp = getCurrentTimestamp();
-
-        String vehicleInfo = make + " : " + model + " : " + year + " : " + plate + " : " + lengthOfStay + " : " + timestamp;
-
-        // Write the vehicle information to the file vehicleOwners.txt
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("vehicleOwners.txt", true))) {
-            writer.write(vehicleInfo);
-            writer.newLine();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Error writing vehicle information to file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    private void computationTimePanel() {
+        currentPanel = new JPanel();
+        frame.getContentPane().removeAll();
+        frame.add(currentPanel);
+    
+        JButton goBackButton = new JButton("Go Back");
+    
+        computationResultArea = new JTextArea(10, 40);
+        computationResultArea.setEditable(false);
+        computationResultArea.setWrapStyleWord(true);
+        computationResultArea.setLineWrap(true);
+        computationResultArea.setAlignmentX(Component.CENTER_ALIGNMENT);
+    
+        ArrayList[] result = VCC.jobCompletion();
+        ArrayList<Integer> jobIDs = result[0];
+        ArrayList<Integer> jobTimes = result[1];
+        ArrayList<Integer> jobCompletionTimes = result[2];
+    
+        StringBuilder resultText = new StringBuilder();
+        for (int i = 0; i < jobIDs.size(); i++) {
+            resultText.append("Job ID: ").append(jobIDs.get(i)).append(", Job Duration: ").append(jobTimes.get(i)).append(", Completion Time: ").append(jobCompletionTimes.get(i)).append("\n");
         }
+    
+        computationResultArea.setText(resultText.toString());
+    
+        JScrollPane scrollPane = new JScrollPane(computationResultArea);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+    
+        goBackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createWelcomePanel();
+            }
+        });
+    
+        currentPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+    
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        currentPanel.add(scrollPane, gbc);
+    
+        gbc.gridy = 1;
+        gbc.weighty = 0.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        currentPanel.add(goBackButton, gbc);
+    
+        frame.revalidate();
+        frame.repaint();
+    }     
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new GUI();
+        });
     }
-
-	private void writeOwnerInfoToFile() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
-        String ownerInfo = username + " : " + password;
-
-        // Write the owner information to the file vehicleOwners.txt
-        try (BufferedWriter writer2 = new BufferedWriter(new FileWriter("vehicleOwners.txt", true))) {
-            writer2.write(ownerInfo);
-            writer2.newLine();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Error writing owner information to file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-
-	private void writeDepartureTimestampToFile() {
-        String timestamp = getCurrentTimestamp();
-
-        // Write the departure timestamp to the file vehicleOwners.txt
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("vehicleOwners.txt", true))) {
-            writer.write("Departure: " + timestamp);
-            writer.newLine();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Error writing departure timestamp to file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-
-	private String getCurrentTimestamp() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        return dateFormat.format(new Date());
-    }
-	public void handleClientIDEntered(String clientID) {
-		try {
-			// Create a new computationalResourceRequestor instance
-			computationalResourceRequestor newRequestor = new computationalResourceRequestor(clientID);
-	
-			// Add the newRequestor to your list or collection of requestors
-			VCController.computationalResourceRequestors.add(newRequestor);
-	
-		} catch (NumberFormatException e) {
-			// Handle the case where clientID is not a valid integer
-			// You can show an error message to the user or take appropriate action.
-		}
-	}
-	public void handleUsernameEntered(String username) {
-		// Create a new vehicle owner instance
-		vehicleOwner newOwner = new vehicleOwner(username);
-		
-		// Add the newOwner to your list or collection of owners
-		VCController.vehicleOwners.add(newOwner);
-	}
-
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				new GUI();
-			}
-		});
-	}
 }
+
