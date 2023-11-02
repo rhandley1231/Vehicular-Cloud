@@ -1,27 +1,18 @@
 package classes;
 
-public class User {
-    private String userName;
-    public int userID;
-    public static int nextUserID = 100000;
+public class user {
+    private int userID;
 
-    public User(String userName) {
-        this.userName = userName;
-        this.userID = nextUserID++;
-
+    public user(int userID) {
+        this.userID = userID;
     }
 
-    // getter and setters for username and password
-    public void setUserName(String userName) {
-        this.userName = userName;
+    // getter and setters for userID
+    public void setUserName(int userID) {
+        this.userID = userID;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public int getUserId() {
+    public int getUserID() {
         return this.userID;
     }
-
 }
