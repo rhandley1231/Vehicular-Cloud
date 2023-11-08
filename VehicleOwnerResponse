@@ -1,0 +1,19 @@
+import java.io.Serializable;
+
+public class VehicleOwnerResponse implements Serializable {
+    private boolean accepted;
+    private String message;
+
+    public VehicleOwnerResponse(boolean accepted, String message) {
+        this.accepted = accepted;
+        this.message = message;
+    }
+
+    public boolean isAccepted() {
+        return accepted;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+}
