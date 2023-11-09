@@ -28,17 +28,35 @@ public class GUI {
 
         currentPanel.setLayout(new BorderLayout());
 
-        JLabel welcomeLabel = new JLabel("Welcome to the Utopia VCRTS, here you can see computation times!");
+        JLabel welcomeLabel = new JLabel("Welcome to the Utopia VCRTS, here you can create jobs, manage vehicles and see computation times!");
         currentPanel.add(welcomeLabel, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel();
         currentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
+        JButton createJobButton = new JButton("Create Job");
+        JButton createVOandVButton = new JButton("Parking");
         JButton computationTimeButton = new JButton("See Wait Time");
         JButton vccButton = new JButton("VCC"); // Add the VCC button
 
+        buttonPanel.add(createJobButton);
+        buttonPanel.add(createVOandVButton);
         buttonPanel.add(computationTimeButton);
         buttonPanel.add(vccButton); // Add the VCC button
+
+        createJobButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createJobPanel();
+            }
+        });
+
+        createVOandVButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createVOandVPanel();
+            }
+        });
 
         computationTimeButton.addActionListener(new ActionListener() {
             @Override
@@ -47,19 +65,17 @@ public class GUI {
                 VCC.jobCompletion();
             }
         });
-
         vccButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Open the VCC welcome page
-                new VCCWelcomePage();
-                frame.dispose();
-            } 
+                // Open the VCC Welcome Page
+                new VCController(); // Create an instance of VCController to open the VCC Welcome Page
+                frame.dispose(); // Close the current GUI frame
+            }
         });
 
         frame.revalidate();
-        frame.repaint();
-    }
+        frame.repaint();}
 
 
     private void createJobPanel() {
@@ -297,3 +313,4 @@ public class GUI {
         });
     }
 }
+
