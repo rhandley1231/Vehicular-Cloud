@@ -1,15 +1,13 @@
-package classes;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class CRRgui {
+public class CRRrun {
     private ArrayList<job> jobList = new ArrayList<job>();
 
-    public CRRgui(int userID) {
+    public CRRrun(int userID) {
         super(userID);
         this.jobList = null;
 
@@ -78,7 +76,7 @@ public class CRRgui {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new CRRgui();
+                new CRRrun();
             }
         });
     }
