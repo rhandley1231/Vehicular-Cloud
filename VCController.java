@@ -1,219 +1,257 @@
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.*;
-import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class VCC {
-    private static final int PORT = 12345;
-    private SSLServerSocket serverSocket;
-    private ExecutorService executorService;
+public class VCController {
+    private JFrame frame;
+    private JPanel currentPanel;
+    private JTextField vOIDField, makeField, modelField, plateField;
+    private JTextField clientIDField, jobIDField, jobDurationField, deadlineField;
 
-    public VCC() {
-        try {
-            // Load keystore and truststore for SSL/TLS
-            char[] keystorePassword = "keystore_password".toCharArray();
-            char[] truststorePassword = "truststore_password".toCharArray();
-            KeyStore keystore = KeyStore.getInstance("JKS");
-            KeyStore truststore = KeyStore.getInstance("JKS");
+    public VCController() {
+        frame = new JFrame("Welcome to VCC");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
 
-            keystore.load(new FileInputStream("server_keystore.jks"), keystorePassword);
-            truststore.load(new FileInputStream("server_truststore.jks"), truststorePassword);
+        createVCCWelcomePanel();
 
-            // Set up SSL/TLS
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-            kmf.init(keystore, keystorePassword);
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-            tmf.init(truststore);
-
-            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-            SSLServerSocketFactory ssf = sslContext.getServerSocketFactory();
-            serverSocket = (SSLServerSocket) ssf.createServerSocket(PORT);
-
-            executorService = Executors.newCachedThreadPool();
-            System.out.println("VCController Server started. Listening on port " + PORT);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        frame.setVisible(true);
     }
 
-    public void startServer() {
-        while (true) {
-            try {
-                SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket.getInetAddress().getHostAddress());
+    private void createVCCWelcomePanel() {
+        currentPanel = new JPanel();
+        frame.getContentPane().removeAll();
+        frame.add(currentPanel);
 
-                // Create a new thread to handle each client
-                executorService.execute(new ClientHandler(clientSocket));
-            } catch (IOException e) {
-                e.printStackTrace();
+        currentPanel.setLayout(new BorderLayout());
+
+        JLabel welcomeLabel = new JLabel("Welcome to the Vehicle and Job Management Page for VCC");
+        currentPanel.add(welcomeLabel, BorderLayout.NORTH);
+
+        // Buttons for managing vehicles, managing jobs, and going back to the welcome page
+        JButton manageVehiclesButton = new JButton("Manage Vehicles");
+        JButton manageJobsButton = new JButton("Manage Jobs");
+        JButton backButton = new JButton("Back to Welcome Page");
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout()); // Use a flow layout for buttons
+        buttonPanel.add(manageVehiclesButton);
+        buttonPanel.add(manageJobsButton);
+        buttonPanel.add(backButton);
+
+        currentPanel.add(buttonPanel, BorderLayout.CENTER);
+
+        manageVehiclesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createManageVehiclesPanel();
             }
-        }
+        });
+
+        manageJobsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createManageJobsPanel();
+            }
+        });
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Redirect to the main welcome page
+                new GUI();
+                frame.dispose();
+            }
+        });
+
+        frame.revalidate();
+        frame.repaint();
     }
 
-    private class ClientHandler implements Runnable {
-        private SSLSocket clientSocket;
+    private void createManageVehiclesPanel() {
+        currentPanel = new JPanel();
+        frame.getContentPane().removeAll();
+        frame.add(currentPanel);
 
-        public ClientHandler(SSLSocket clientSocket) {
-            this.clientSocket = clientSocket;
-        }
+        currentPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST; // Align components to the left
 
-        @Override
-        public void run() {
-            try {
-                ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
+        vOIDField = new JTextField(20);
+        makeField = new JTextField(20);
+        modelField = new JTextField(20);
+        plateField = new JTextField(20);
 
-                // Receive data from the client
-                Object receivedData = objectInputStream.readObject();
+        JLabel vOIDLabel = new JLabel("Vehicle Owner ID (Number):");
+        JLabel makeLabel = new JLabel("Make:");
+        JLabel modelLabel = new JLabel("Model:");
+        JLabel plateLabel = new JLabel("License Plate:");
 
-                if (receivedData instanceof Client) {
-                    handleClientData((Client) receivedData);
-                } else if (receivedData instanceof VehicleOwner) {
-                    handleVehicleOwnerData((VehicleOwner) receivedData);
-                } else {
-                    System.out.println("Received unknown data type from the client.");
-                }
+        JButton submitButton = new JButton("Submit");
+        JButton goBackButton = new JButton("Go Back");
 
-                objectInputStream.close();
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    clientSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        // Add Vehicle Owner ID label and field
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        currentPanel.add(vOIDLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(vOIDField, gbc);
+
+        // Add Make label and field
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        currentPanel.add(makeLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(makeField, gbc);
+
+        // Add Model label and field
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        currentPanel.add(modelLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(modelField, gbc);
+
+        // Add License Plate label and field
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        currentPanel.add(plateLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(plateField, gbc);
+
+        // Create a panel for buttons and add it at the bottom
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(submitButton);
+        buttonPanel.add(goBackButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.SOUTH;
+        currentPanel.add(buttonPanel, gbc);
+
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int vOID = Integer.parseInt(vOIDField.getText());
+                String make = makeField.getText();
+                String model = modelField.getText();
+                String plate = plateField.getText();
+
+                // Handle adding vehicle information here
+                // For example: VCC.createVOandV(vOID, make, model, plate);
+
+                JOptionPane.showMessageDialog(frame, "Vehicle information added successfully!");
+                createVCCWelcomePanel();
             }
-        }
+        });
 
-        private void sendResponse(SSLSocket clientSocket, boolean accepted, String message) {
-            try {
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-                Response response = new Response(accepted, message);
-                objectOutputStream.writeObject(response);
-                objectOutputStream.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
+        goBackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createVCCWelcomePanel();
             }
-        }
+        });
 
-        private void sendVehicleOwnerResponse(SSLSocket clientSocket, boolean accepted, String message) {
-            try {
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-                VehicleOwnerResponse response = new VehicleOwnerResponse(accepted, message);
-                objectOutputStream.writeObject(response);
-                objectOutputStream.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    private void createManageJobsPanel() {
+        currentPanel = new JPanel();
+        frame.getContentPane().removeAll();
+        frame.add(currentPanel);
+
+        currentPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST; // Align components to the left
+
+        clientIDField = new JTextField(20);
+        jobIDField = new JTextField(20);
+        jobDurationField = new JTextField(20);
+        deadlineField = new JTextField(20);
+
+        JLabel clientIDLabel = new JLabel("Client ID (Number):");
+        JLabel jobIDLabel = new JLabel("Job ID (Number):");
+        JLabel jobDurationLabel = new JLabel("Job Duration (Hours):");
+        JLabel deadlineLabel = new JLabel("Deadline (mm/dd/yyyy):");
+
+        JButton submitButton = new JButton("Submit");
+        JButton goBackButton = new JButton("Go Back");
+
+        // Add client ID label and field
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        currentPanel.add(clientIDLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(clientIDField, gbc);
+
+        // Add job ID label and field
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        currentPanel.add(jobIDLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(jobIDField, gbc);
+
+        // Add job duration label and field
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        currentPanel.add(jobDurationLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(jobDurationField, gbc);
+
+        // Add deadline label and field
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        currentPanel.add(deadlineLabel, gbc);
+        gbc.gridx = 1;
+        currentPanel.add(deadlineField, gbc);
+
+        // Create a panel for buttons and add it at the bottom
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(submitButton);
+        buttonPanel.add(goBackButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.SOUTH;
+        currentPanel.add(buttonPanel, gbc);
+
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String clientID = clientIDField.getText();
+                int client = Integer.parseInt(clientID);
+                int jobID = Integer.parseInt(jobIDField.getText());
+                int jobDuration = Integer.parseInt(jobDurationField.getText());
+                String deadline = deadlineField.getText();
+
+                // Handle adding job information here
+                // For example: VCC.createJob(client, jobID, jobDuration, deadline);
+
+                JOptionPane.showMessageDialog(frame, "Job created successfully!");
+                createVCCWelcomePanel();
             }
-        }
+        });
 
-        private void handleClientData(Client client) {
-            // Process and authorize client data
-            boolean authorized = processAndAuthorizeClientData(client);
-
-            if (authorized) {
-                sendResponse(clientSocket, true, "Data accepted");
-            } else {
-                sendResponse(clientSocket, false, "Data rejected");
+        goBackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createVCCWelcomePanel();
             }
-        }
+        });
 
-        private void handleVehicleOwnerData(VehicleOwner vehicleOwner) {
-            // Process and authorize vehicle owner data
-            boolean authorized = processAndAuthorizeVehicleOwnerData(vehicleOwner);
-
-            if (authorized) {
-                sendVehicleOwnerResponse(clientSocket, true, "Data accepted");
-            } else {
-                sendVehicleOwnerResponse(clientSocket, false, "Data rejected");
-            }
-        }
-
-        private boolean processAndAuthorizeClientData(Client client) {
-            // Implement your authorization logic here
-            return true; // Modify this based on your logic
-        }
-
-        private boolean processAndAuthorizeVehicleOwnerData(VehicleOwner vehicleOwner) {
-            // Implement your authorization logic here
-            return true; // Modify this based on your logic
-        }
+        frame.revalidate();
+        frame.repaint();
     }
 
     public static void main(String[] args) {
-        VCC vcController = new VCC();
-        vcController.startServer();
-    }
-
-    public List<Integer> jobCompletion(int[] jobTimes) {
-        List<Integer> jobCompletionTimes = new ArrayList<>();
-        int totalTime = 0;
-        for (int i : jobTimes) {
-            totalTime += i;
-            jobCompletionTimes.add(totalTime);
-        }
-        return jobCompletionTimes;
-}
-
-class Client implements Serializable {
-
-	public Client(int client, int jobID, int jobDuration, String deadline) {
-		// TODO Auto-generated constructor stub
-	}
-    // Define the fields and methods for the Client class
-    // Implement any necessary logic for your use case
-}
-
-class VehicleOwner implements Serializable {
-
-	public VehicleOwner(int vOID, String make, String model, String plate) {
-		// TODO Auto-generated constructor stub
-	}
-    // Define the fields and methods for the VehicleOwner class
-    // Implement any necessary logic for your use case
-}
-
-class Response implements Serializable {
-    private boolean accepted;
-    private String message;
-
-    public Response(boolean accepted, String message) {
-        this.accepted = accepted;
-        this.message = message;
-    }
-
-    public boolean isAccepted() {
-        return accepted;
-    }
-
-    public String getMessage() {
-        return message;
+        SwingUtilities.invokeLater(() -> {
+            new VCController();
+        });
     }
 }
 
-class VehicleOwnerResponse implements Serializable {
-    private boolean accepted;
-    private String message;
-
-    public VehicleOwnerResponse(boolean accepted, String message) {
-        this.accepted = accepted;
-        this.message = message;
-    }
-
-    public boolean isAccepted() {
-        return accepted;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-}}
