@@ -2,8 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 
 public class GUI {
@@ -12,10 +10,8 @@ public class GUI {
     private JTextField clientIDField, jobIDField, jobDurationField, deadlineField;
     private JTextField vOIDField, makeField, modelField, plateField;
     private JTextArea computationResultArea;
-    private ObjectOutputStream objectOutputStream;
 
-    public GUI(ObjectOutputStream objectOutputStream) {
-        this.objectOutputStream = objectOutputStream;
+    public GUI() {
         frame = new JFrame("Utopia VCRTS");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
@@ -32,102 +28,102 @@ public class GUI {
 
         currentPanel.setLayout(new BorderLayout());
 
-        JLabel welcomeLabel = new JLabel("Welcome to the Utopia VCRTS, here you can create jobs, manage vehicles, and see computation times!");
+        JLabel welcomeLabel = new JLabel("Welcome to the Utopia VCRTS, here you can see computation times!");
         currentPanel.add(welcomeLabel, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel();
         currentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        JButton createJobButton = new JButton("Create Job");
-        JButton createVOandVButton = new JButton("Manage Vehicle");
         JButton computationTimeButton = new JButton("See Wait Time");
+        JButton vccButton = new JButton("VCC"); // Add the VCC button
 
-        buttonPanel.add(createJobButton);
-        buttonPanel.add(createVOandVButton);
         buttonPanel.add(computationTimeButton);
-
-        createJobButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createJobPanel();
-            }
-        });
-
-        createVOandVButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createVOandVPanel();
-            }
-        });
+        buttonPanel.add(vccButton); // Add the VCC button
 
         computationTimeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 computationTimePanel();
+                VCC.jobCompletion();
             }
+        });
+
+        vccButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Open the VCC welcome page
+                new VCCWelcomePage();
+                frame.dispose();
+            } 
         });
 
         frame.revalidate();
         frame.repaint();
     }
 
+
     private void createJobPanel() {
         currentPanel = new JPanel();
         frame.getContentPane().removeAll();
         frame.add(currentPanel);
-
+    
         currentPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
+        gbc.anchor = GridBagConstraints.WEST; // Align components to the left
+    
         clientIDField = new JTextField(20);
         jobIDField = new JTextField(20);
         jobDurationField = new JTextField(20);
         deadlineField = new JTextField(20);
-
+    
         JLabel clientIDLabel = new JLabel("Client ID (Number):");
         JLabel jobIDLabel = new JLabel("Job ID (Number):");
         JLabel jobDurationLabel = new JLabel("Job Duration (Hours):");
         JLabel deadlineLabel = new JLabel("Deadline (mm/dd/yyyy):");
-
+    
         JButton submitButton = new JButton("Submit");
         JButton goBackButton = new JButton("Go Back");
-
+    
+        // Add client ID label and field
         gbc.gridx = 0;
         gbc.gridy = 0;
         currentPanel.add(clientIDLabel, gbc);
         gbc.gridx = 1;
         currentPanel.add(clientIDField, gbc);
-
+    
+        // Add job ID label and field
         gbc.gridx = 0;
         gbc.gridy = 1;
         currentPanel.add(jobIDLabel, gbc);
         gbc.gridx = 1;
         currentPanel.add(jobIDField, gbc);
-
+    
+        // Add job duration label and field
         gbc.gridx = 0;
         gbc.gridy = 2;
         currentPanel.add(jobDurationLabel, gbc);
         gbc.gridx = 1;
         currentPanel.add(jobDurationField, gbc);
-
+    
+        // Add deadline label and field
         gbc.gridx = 0;
         gbc.gridy = 3;
         currentPanel.add(deadlineLabel, gbc);
         gbc.gridx = 1;
         currentPanel.add(deadlineField, gbc);
-
+    
+        // Create a panel for buttons and add it at the bottom
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(submitButton);
         buttonPanel.add(goBackButton);
-
+    
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.SOUTH;
         currentPanel.add(buttonPanel, gbc);
-
+    
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -136,84 +132,86 @@ public class GUI {
                 int jobID = Integer.parseInt(jobIDField.getText());
                 int jobDuration = Integer.parseInt(jobDurationField.getText());
                 String deadline = deadlineField.getText();
-
-                // Create a Client object and send it to VCController
-                Client clientObject = new Client(client, jobID, jobDuration, deadline);
-                sendObjectToServer(clientObject);
-
-                JOptionPane.showMessageDialog(frame, "Job data sent to VCController.");
+    
+                VCC.createJob(client, jobID, jobDuration, deadline);
+                JOptionPane.showMessageDialog(frame, "Job created successfully!");
                 createWelcomePanel();
             }
         });
-
+    
         goBackButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 createWelcomePanel();
             }
         });
-
+    
         frame.revalidate();
         frame.repaint();
-    }
+    }    
 
     private void createVOandVPanel() {
         currentPanel = new JPanel();
         frame.getContentPane().removeAll();
         frame.add(currentPanel);
-
+    
         currentPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
+        gbc.anchor = GridBagConstraints.WEST; // Align components to the left
+    
         vOIDField = new JTextField(20);
         makeField = new JTextField(20);
         modelField = new JTextField(20);
         plateField = new JTextField(20);
-
+    
         JLabel vOIDLabel = new JLabel("Vehicle Owner ID (Number):");
         JLabel makeLabel = new JLabel("Make:");
         JLabel modelLabel = new JLabel("Model:");
         JLabel plateLabel = new JLabel("License Plate:");
-
+    
         JButton submitButton = new JButton("Submit");
         JButton goBackButton = new JButton("Go Back");
-
+    
+        // Add Vehicle Owner ID label and field
         gbc.gridx = 0;
         gbc.gridy = 0;
         currentPanel.add(vOIDLabel, gbc);
         gbc.gridx = 1;
         currentPanel.add(vOIDField, gbc);
-
+    
+        // Add Make label and field
         gbc.gridx = 0;
         gbc.gridy = 1;
         currentPanel.add(makeLabel, gbc);
         gbc.gridx = 1;
         currentPanel.add(makeField, gbc);
-
+    
+        // Add Model label and field
         gbc.gridx = 0;
         gbc.gridy = 2;
         currentPanel.add(modelLabel, gbc);
         gbc.gridx = 1;
         currentPanel.add(modelField, gbc);
-
+    
+        // Add License Plate label and field
         gbc.gridx = 0;
         gbc.gridy = 3;
         currentPanel.add(plateLabel, gbc);
         gbc.gridx = 1;
         currentPanel.add(plateField, gbc);
-
+    
+        // Create a panel for buttons and add it at the bottom
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(submitButton);
         buttonPanel.add(goBackButton);
-
+    
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.SOUTH;
         currentPanel.add(buttonPanel, gbc);
-
+    
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -221,26 +219,24 @@ public class GUI {
                 String make = makeField.getText();
                 String model = modelField.getText();
                 String plate = plateField.getText();
-
-                // Create a VehicleOwner object and send it to VCController
-                VehicleOwner vehicleOwner = new VehicleOwner(vOID, make, model, plate);
-                sendObjectToServer(vehicleOwner);
-
-                JOptionPane.showMessageDialog(frame, "Vehicle Owner and Vehicle data sent to VCController.");
+    
+                VCC.createVOandV(vOID, make, model, plate);
+                JOptionPane.showMessageDialog(frame, "Vehicle Owner and Vehicle created successfully!");
                 createWelcomePanel();
             }
         });
-
+    
         goBackButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 createWelcomePanel();
             }
         });
-
+    
         frame.revalidate();
         frame.repaint();
     }
+    
 
     private void computationTimePanel() {
         currentPanel = new JPanel();
@@ -295,30 +291,9 @@ public class GUI {
         frame.revalidate();
         frame.repaint();
     }     
-
     public static void main(String[] args) {
-        try {
-            Socket socket = new Socket("localhost", 12345); // Replace with your server's hostname and port
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-
-            SwingUtilities.invokeLater(() -> {
-                new GUI(objectOutputStream);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    // Method to send objects (Client or VehicleOwner) to VCController
-    private void sendObjectToServer(Object object) {
-        try {
-            objectOutputStream.writeObject(object);
-            objectOutputStream.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SwingUtilities.invokeLater(() -> {
+            new GUI();
+        });
     }
 }
-
-
