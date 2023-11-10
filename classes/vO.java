@@ -8,7 +8,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.*;
 
-public class vO extends user {
+public class vO extends User {
 
     private ArrayList<vehicle> vehicles = new ArrayList<vehicle>();
     private vehicle v;
