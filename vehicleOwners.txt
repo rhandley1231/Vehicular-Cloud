@@ -1,6 +1,0 @@
-gene : genesimmons
-Honda : CRV : 2007 : KRN7366 : 7 days : 22:37:31
-Departure: 22:37:42
-jerrySeinfeld : airplaneFood
-honda : CRV : 2007 : KRN7366 : 7 hours : 22:38:55
-Departure: 22:38:57
