@@ -1,4 +1,4 @@
-<<<<<<< HEAD:classes/vehicle.java
+
 package classes;
 
 public class vehicle {
