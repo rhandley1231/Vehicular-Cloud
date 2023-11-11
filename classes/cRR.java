@@ -1,3 +1,4 @@
+
 package classes;
 
 import java.text.SimpleDateFormat;
@@ -10,5 +11,6 @@ public class cRR extends User {
         super(userID);
         //this.jobList = null;
     }
+
 
 }
