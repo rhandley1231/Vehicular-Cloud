@@ -10,69 +10,94 @@ import java.util.Date;
 
 public class VORun {
     private JFrame frame;
-    private JTextField ownerIDField, makeField, modelField, licensePlateField;
-    private JButton submitButton, goBackButton;
+    private JTextField ownerIDField;
+    private JTextField makeField;
+    private JTextField modelField;
+    private JTextField licensePlateField;
 
     public VORun() {
         frame = new JFrame("Vehicle Owner Interface");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 300);
-        initComponents();
-        buildUI();
-        frame.setVisible(true);
-    }
 
-    private void initComponents() {
-        ownerIDField = new JTextField(20);
-        makeField = new JTextField(20);
-        modelField = new JTextField(20);
-        licensePlateField = new JTextField(20);
-        submitButton = new JButton("Submit");
-        goBackButton = new JButton("Go Back");
-    }
-
-    private void buildUI() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
-        addLabelAndField(panel, "Vehicle Owner ID (Number):", ownerIDField, gbc, 0);
-        addLabelAndField(panel, "Make:", makeField, gbc, 1);
-        addLabelAndField(panel, "Model:", modelField, gbc, 2);
-        addLabelAndField(panel, "License Plate:", licensePlateField, gbc, 3);
+        JLabel ownerIDLabel = new JLabel("Vehicle Owner ID:");
+        ownerIDField = new JTextField(20);
+
+        JLabel makeLabel = new JLabel("Make:");
+        makeField = new JTextField(20);
+
+        JLabel modelLabel = new JLabel("Model:");
+        modelField = new JTextField(20);
+
+        JLabel licensePlateLabel = new JLabel("License Plate:");
+        licensePlateField = new JTextField(20);
+
+        JButton parkButton = new JButton("Sumbit");
+        parkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                writeVehicleInfoToFile();
+                frame.dispose();
+            }
+        });
+
+        JButton goBackButton = new JButton("Go Back");
+        goBackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+            }
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(ownerIDLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        panel.add(ownerIDField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(makeLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        panel.add(makeField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        panel.add(modelLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        panel.add(modelField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        panel.add(licensePlateLabel, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        panel.add(licensePlateField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
-
-        submitButton.addActionListener(e -> {
-            writeVehicleInfoToFile();
-            frame.dispose();
-        });
-        panel.add(submitButton, gbc);
+        panel.add(parkButton, gbc);
 
         gbc.gridx = 1;
-        goBackButton.addActionListener(e -> frame.dispose());
+        gbc.gridy = 4;
         panel.add(goBackButton, gbc);
 
         frame.add(panel);
-    }
-
-    private void addLabelAndField(JPanel panel, String label, JTextField field, GridBagConstraints gbc, int gridY) {
-        JLabel fieldLabel = new JLabel(label);
-        gbc.gridx = 0;
-        gbc.gridy = gridY;
-        panel.add(fieldLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = gridY;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(field, gbc);
+        frame.setVisible(true);
     }
 
     private void writeVehicleInfoToFile() {
@@ -82,17 +107,15 @@ public class VORun {
         String licensePlate = licensePlateField.getText();
         String timestamp = getCurrentTimestamp();
 
-        String vehicleInfo = String.format(
-                "Vehicle Owner ID (Number): %s : Make: %s : Model: %s : License Plate: %s : Timestamp: %s",
-                ownerID, make, model, licensePlate, timestamp);
+        String vehicleInfo = "Owner ID: " + ownerID + " : Make: " + make + " : Model: " + model +
+                " : License Plate: " + licensePlate + " : Timestamp: " + timestamp;
 
         // Write the vehicle information to a file (you can specify the file name)
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("vehicleInfo.txt", true))) {
             writer.write(vehicleInfo);
             writer.newLine();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Error writing vehicle information to file: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Error writing vehicle information to file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -102,6 +125,11 @@ public class VORun {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(VORun::new);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new VORun();
+            }
+        });
     }
 }
