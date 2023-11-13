@@ -2,9 +2,20 @@ package classes;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
-
+import java.util.StringTokenizer;
+import java.net.Socket;
+import java.net.ServerSocket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import javax.swing.*;
+import java.awt.*;
 public class VCC {
+    //Adding server functionality
+    private static final int PORT = 8080;
+    private static ServerSocket server;
+    private static ExecutorService executor;
     public static ArrayList<job> currentJobList = new ArrayList<job>();
     public static ArrayList<vehicle> currentParkedVehicles = new ArrayList<vehicle>();
     public static ArrayList<cRR> computationalResourceRequestors = new ArrayList<cRR>();
@@ -41,8 +52,32 @@ public class VCC {
         VCC.currentParkedVehicles.add(newVehicle);
         VCC.vehicleOwners.add(newVO);
         // Writes to VO
-        writeVOToFile(newVO);
     }
+    public static void runServer() {
+        executor = Executors.newCachedThreadPool(); //Adds new threads as needed
+        executor.submit(() -> {
+        try{
+            server = new ServerSocket(PORT);
+            System.out.println("Server Online, listening for requests");
+            while(true){
+                //Accepts incoming connections
+                Socket cSocket = server.accept();
+                ObjectInputStream objectInputStream = new ObjectInputStream(cSocket.getInputStream());
+                System.out.println("A client has connected to the server!");
+                String data = objectInputStream.readUTF();
+                handleIncomingData(data);
+            }
+        }
+        catch(IOException e){
+            e.getStackTrace();
+        }
+    });
+    }
+
+    public void acceptVOReq(int vO_ID,vehicle newVehicle){
+        createVOandV(vO_ID, newVehicle.getMake(), newVehicle.getModel(), newVehicle.getPlate());   
+        System.out.println("Added information for user " + Integer.toString(vO_ID) + "to data structures.");
+    } 
 
     private static void writeVOToFile(vO newVO) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("vOs.txt", true))) {
@@ -58,6 +93,90 @@ public class VCC {
             // Handle the exception, e.g., log an error message or throw an exception
         }
     }
+     private static void handleVehicleOwnerData(String data) {
+        // Use StringTokenizer to tokenize the data
+        String clean = data.replaceAll("Vehicle and Owner Info: ", "");
+        StringTokenizer tokenizer = new StringTokenizer(clean, " ");
+        
+        // Assuming the format is "UserID : Make : Model : Plate"
+        int userID = Integer.parseInt(tokenizer.nextToken().trim());
+        String make = tokenizer.nextToken().trim();
+        String model = tokenizer.nextToken().trim();
+        String plate = tokenizer.nextToken().trim();
+        vehicle v = new vehicle(make, model, plate);
+        // Create a VehicleOwner object and add it to the array list
+        vO vehicleOwner = new vO(userID, v);
+        createVOandV(userID, make, model, plate);
+        writeVOToFile(vehicleOwner);
+    }
+
+    private static void handleJobInformationData(String data) {
+        // Use StringTokenizer to tokenize the data
+        String clean = data.replaceAll("Job Information: ", "");
+        StringTokenizer tokenizer = new StringTokenizer(clean, " ");
+        
+        int cliID = Integer.parseInt(tokenizer.nextToken().trim());
+        int jobID = Integer.parseInt(tokenizer.nextToken().trim());
+        int jobDuration = Integer.parseInt(tokenizer.nextToken().trim());
+        String deadline = tokenizer.nextToken().trim();
+        job j = new job(jobID, jobDuration, deadline);
+        cRR jo = new cRR(cliID);
+
+        // Create a JobInformation object and add it to the array list
+        createJob(cliID, jobID, jobDuration, deadline);
+
+
+     
+    }
+    public static void handleIncomingData(String data) {
+        JFrame alertFrame = new JFrame("Incoming Data Alert");
+        alertFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel alertPanel = new JPanel();
+        alertFrame.getContentPane().removeAll();
+        alertFrame.add(alertPanel);
+
+        alertPanel.setLayout(new BorderLayout());
+
+        JTextArea dataTextArea = new JTextArea(data);
+        dataTextArea.setEditable(false);
+        dataTextArea.setWrapStyleWord(true);
+        dataTextArea.setLineWrap(true);
+        dataTextArea.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JScrollPane dataScrollPane = new JScrollPane(dataTextArea);
+        dataScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+        JButton acceptButton = new JButton("Accept");
+        JButton rejectButton = new JButton("Reject");
+
+        acceptButton.addActionListener(e -> {
+            // Check the data and perform appropriate actions
+            if (data.startsWith("Vehicle and Owner Info: ")) {
+                handleVehicleOwnerData(data); 
+            } else {
+                handleJobInformationData(data);
+            }
+            alertFrame.dispose(); // Close the alert after processing
+        });
+
+        rejectButton.addActionListener(e -> {
+            alertFrame.dispose(); // Close the alert without processing
+        });
+
+        alertPanel.add(dataScrollPane, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(acceptButton);
+        buttonPanel.add(rejectButton);
+
+        alertPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        alertFrame.pack();
+        alertFrame.setLocationRelativeTo(null); // Center the frame on the screen
+        alertFrame.setVisible(true);
+    }
+
 
     // Completion time algorithm
     public static ArrayList[] jobCompletion() {
@@ -86,6 +205,7 @@ public class VCC {
     private static void writeCompletionTimesToFile(ArrayList[] a) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("completion_times.txt", true))) {
             // Write the a[0] values on the first line
+            writer.write("Job IDs: ");
             for (int i = 0; i < a[0].size(); i++) {
                 writer.write(a[0].get(i).toString());
                 if (i < a[0].size() - 1) {
@@ -94,6 +214,7 @@ public class VCC {
             }
             writer.newLine();
 
+            writer.write("Individual Job Durations: ");
             // Write the a[1] values on the second line
             for (int i = 0; i < a[1].size(); i++) {
                 writer.write(a[1].get(i).toString());
@@ -102,6 +223,7 @@ public class VCC {
                 }
             }
             writer.newLine();
+            writer.write("Total computation time: ");
 
             // Write the a[2] values on the last line
             for (int i = 0; i < a[2].size(); i++) {
