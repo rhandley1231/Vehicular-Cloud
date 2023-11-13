@@ -21,7 +21,6 @@ public class voRun {
     private Socket socket;
     private ObjectOutputStream objectOutputStream;
 
-
     public voRun() {
         frame = new JFrame("Vehicle Owner Interface");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -31,6 +30,7 @@ public class voRun {
         initializeSocket();
         frame.setVisible(true);
     }
+
     private void initializeSocket() {
         try {
             // Replace "localhost" and 8080 with the actual server address and port
@@ -55,16 +55,32 @@ public class voRun {
     }
 
     private void buildUI() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
+        createWelcomePanel();
+    }
+
+    private void createWelcomePanel() {
+        JPanel welcomePanel = new JPanel(new BorderLayout());
+        frame.getContentPane().removeAll();
+        frame.add(welcomePanel);
+
+        JTextArea welcomeTextArea = new JTextArea("Welcome to the Vehicle Owner Interface!\n"
+                + "This interface allows you to submit information about your vehicle.");
+        welcomeTextArea.setEditable(false);
+        welcomeTextArea.setWrapStyleWord(true);
+        welcomeTextArea.setLineWrap(true);
+        welcomeTextArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        welcomePanel.add(welcomeTextArea, BorderLayout.NORTH);
+
+        JPanel inputPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
-        addLabelAndField(panel, "Vehicle Owner ID (Number):", ownerIDField, gbc, 0);
-        addLabelAndField(panel, "Make:", makeField, gbc, 1);
-        addLabelAndField(panel, "Model:", modelField, gbc, 2);
-        addLabelAndField(panel, "License Plate:", licensePlateField, gbc, 3);
+        addLabelAndField(inputPanel, "Vehicle Owner ID (Number):", ownerIDField, gbc, 0);
+        addLabelAndField(inputPanel, "Make:", makeField, gbc, 1);
+        addLabelAndField(inputPanel, "Model:", modelField, gbc, 2);
+        addLabelAndField(inputPanel, "License Plate:", licensePlateField, gbc, 3);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
@@ -74,15 +90,22 @@ public class voRun {
 
         submitButton.addActionListener(e -> {
             sendVehicleInfoToServer();
-            
         });
-        panel.add(submitButton, gbc);
+        inputPanel.add(submitButton, gbc);
 
         gbc.gridx = 1;
         goBackButton.addActionListener(e -> frame.dispose());
-        panel.add(goBackButton, gbc);
+        inputPanel.add(goBackButton, gbc);
 
-        frame.add(panel);
+        JPanel centeringPanel = new JPanel(new GridBagLayout());
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        centeringPanel.add(inputPanel, gbc);
+
+        welcomePanel.add(centeringPanel, BorderLayout.CENTER);
+
+        frame.revalidate();
+        frame.repaint();
     }
 
     private void addLabelAndField(JPanel panel, String label, JTextField field, GridBagConstraints gbc, int gridY) {
@@ -97,6 +120,7 @@ public class voRun {
         gbc.weightx = 1.0;
         panel.add(field, gbc);
     }
+
     private void sendVehicleInfoToServer() {
         try {
             int ownerID = Integer.parseInt(ownerIDField.getText());
@@ -109,11 +133,11 @@ public class voRun {
             vO owner = new vO(ownerID, vehicle);
 
             // Send the Vehicle object to the server
-            objectOutputStream.writeUTF("Vehicle and Owner Info: " + Integer.toString(owner.getUserID()) +" "+ owner.getVehicle().getMake()+" " + owner.getVehicle().getModel()+" " + owner.getVehicle().getPlate());
+            objectOutputStream.writeUTF("Vehicle and Owner Info: " + Integer.toString(owner.getUserID()) + " " + owner.getVehicle().getMake() + " " + owner.getVehicle().getModel() + " " + owner.getVehicle().getPlate());
             objectOutputStream.flush();
 
             // Show success message
-            JOptionPane.showMessageDialog(frame, "Successfully sent vehicle information to server!",
+            JOptionPane.showMessageDialog(frame, "Successfully sent vehicle information to the server!",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
 
             // Clear input fields for new entries
@@ -129,6 +153,7 @@ public class voRun {
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     private String getCurrentTimestamp() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         return dateFormat.format(new Date());
@@ -138,4 +163,3 @@ public class voRun {
         SwingUtilities.invokeLater(voRun::new);
     }
 }
-
