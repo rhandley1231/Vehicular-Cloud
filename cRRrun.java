@@ -5,6 +5,9 @@ import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,10 +16,12 @@ import classes.*;
 public class cRRrun extends JFrame {
     private JFrame frame;
     private JTextField userIDField;
-    private JTextField jobInfoField;
+    private JTextField jobIDField;
     private JTextField durationField;
     private JTextField deadlineField;
     private ArrayList<job> jobList;
+    private Socket socket;
+    private ObjectOutputStream objectOutputStream;
 
     public cRRrun() {
         super("Computation Resource Requester");
@@ -29,6 +34,7 @@ public class cRRrun extends JFrame {
 
         setLocationRelativeTo(null);
         setVisible(true);
+        initializeSocket();
     }
 
     private void createWelcomePanel() {
@@ -46,7 +52,7 @@ public class cRRrun extends JFrame {
 
         JPanel inputPanel = new JPanel(new GridBagLayout());
         userIDField = new JTextField(10);
-        jobInfoField = new JTextField(10);
+        jobIDField = new JTextField(10);
         durationField = new JTextField(10);
         deadlineField = new JTextField(10);
 
@@ -72,7 +78,7 @@ public class cRRrun extends JFrame {
         gbc.gridx++;
         gbc.insets = new Insets(5, 5, 0, 0); 
         gbc.anchor = GridBagConstraints.WEST;
-        inputPanel.add(jobInfoField, gbc);
+        inputPanel.add(jobIDField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -104,7 +110,6 @@ public class cRRrun extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 submitJob();
-                JOptionPane.showMessageDialog(frame, "Job created successfully!");
             }
         });
 
@@ -122,26 +127,51 @@ public class cRRrun extends JFrame {
         revalidate();
         repaint();
     }
+    private void initializeSocket() {
+        try {
+            // Replace "localhost" and 8080 with the actual server address and port
+            socket = new Socket("localhost", 8080);
+            System.out.println("Connected to Server!");
+            OutputStream outputStream = socket.getOutputStream();
+            objectOutputStream = new ObjectOutputStream(outputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Error connecting to the server: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-    private void submitJob() {
+    private void sendInfo(String info) {
+        try {
+            // Send the information to the server
+            objectOutputStream.writeUTF(info);
+            objectOutputStream.flush();
+
+            // Show success message
+            JOptionPane.showMessageDialog(frame, "Successfully sent information to server!",
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Error sending information to server: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+     private void submitJob() {
         try {
             int userID = Integer.parseInt(userIDField.getText());
-            String jobInfo = jobInfoField.getText();
+            int jobID =  Integer.parseInt(jobIDField.getText());
             int duration = Integer.parseInt(durationField.getText());
             String deadline = deadlineField.getText();
 
-            saveToFile(userID, jobInfo, duration, deadline);
+            // Construct the information string
+            String info = "Job Information: " + userID + " " + jobID + " " + duration + " " + deadline;
 
-            User currentUser = new User(userID);
-            job currentJob = new job(userID, duration, deadline);
-
-            jobList.add(currentJob);
-
-            System.out.println("Job submitted for User ID: " + userID + ", Job Info: " + jobInfo +
-                    ", Duration: " + duration + " hours, Deadline: " + deadline);
-
+            // Send the information to the server
+            sendInfo(info);
+            
             userIDField.setText("");
-            jobInfoField.setText("");
+            jobIDField.setText("");
             durationField.setText("");
             deadlineField.setText("");
         } catch (NumberFormatException ex) {

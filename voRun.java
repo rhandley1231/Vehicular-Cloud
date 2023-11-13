@@ -6,13 +6,21 @@ import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import classes.vehicle;
+import classes.vO;
 
 public class voRun {
     private JFrame frame;
     private JTextField ownerIDField, makeField, modelField, licensePlateField;
     private JButton submitButton, goBackButton;
+    private Socket socket;
+    private ObjectOutputStream objectOutputStream;
+
 
     public voRun() {
         frame = new JFrame("Vehicle Owner Interface");
@@ -20,7 +28,21 @@ public class voRun {
         frame.setSize(400, 300);
         initComponents();
         buildUI();
+        initializeSocket();
         frame.setVisible(true);
+    }
+    private void initializeSocket() {
+        try {
+            // Replace "localhost" and 8080 with the actual server address and port
+            socket = new Socket("localhost", 8080);
+            System.out.println("Connected to Server!");
+            OutputStream outputStream = socket.getOutputStream();
+            objectOutputStream = new ObjectOutputStream(outputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Error connecting to the server: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void initComponents() {
@@ -51,7 +73,7 @@ public class voRun {
         gbc.anchor = GridBagConstraints.CENTER;
 
         submitButton.addActionListener(e -> {
-            writeVehicleInfoToFile();
+            sendVehicleInfoToServer();
             
         });
         panel.add(submitButton, gbc);
@@ -75,36 +97,38 @@ public class voRun {
         gbc.weightx = 1.0;
         panel.add(field, gbc);
     }
+    private void sendVehicleInfoToServer() {
+        try {
+            int ownerID = Integer.parseInt(ownerIDField.getText());
+            String make = makeField.getText();
+            String model = modelField.getText();
+            String licensePlate = licensePlateField.getText();
 
-    private void writeVehicleInfoToFile() {
-        String ownerID = ownerIDField.getText();
-        String make = makeField.getText();
-        String model = modelField.getText();
-        String licensePlate = licensePlateField.getText();
-        String timestamp = getCurrentTimestamp();
+            // Create a Vehicle object
+            vehicle vehicle = new vehicle(make, model, licensePlate);
+            vO owner = new vO(ownerID, vehicle);
 
-        String vehicleInfo = String.format(
-                "Vehicle Owner ID (Number): %s : Make: %s : Model: %s : License Plate: %s : Timestamp: %s",
-                ownerID, make, model, licensePlate, timestamp);
+            // Send the Vehicle object to the server
+            objectOutputStream.writeUTF("Vehicle and Owner Info: " + Integer.toString(owner.getUserID()) +" "+ owner.getVehicle().getMake()+" " + owner.getVehicle().getModel()+" " + owner.getVehicle().getPlate());
+            objectOutputStream.flush();
 
-        // Write the vehicle information to a file (you can specify the file name)
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("vehicleInfo.txt", true))) {
-            writer.write(vehicleInfo);
-            writer.newLine();
             // Show success message
-            JOptionPane.showMessageDialog(frame, "Successfully wrote vehicle information to file!",
+            JOptionPane.showMessageDialog(frame, "Successfully sent vehicle information to server!",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
+
             // Clear input fields for new entries
             ownerIDField.setText("");
             makeField.setText("");
             modelField.setText("");
             licensePlateField.setText("");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(frame, "Invalid input. Please enter valid numbers.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Error writing vehicle information to file: " + e.getMessage(),
+            JOptionPane.showMessageDialog(frame, "Error sending vehicle information to server: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private String getCurrentTimestamp() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         return dateFormat.format(new Date());
