@@ -1,4 +1,8 @@
 package classes;
+import java.sql.*;
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,38 +24,29 @@ public class VCC {
     public static ArrayList<vehicle> currentParkedVehicles = new ArrayList<vehicle>();
     public static ArrayList<cRR> computationalResourceRequestors = new ArrayList<cRR>();
     public static ArrayList<vO> vehicleOwners = new ArrayList<vO>();
+    private static Connection conn;
+    
+
+
 
     public static String password; // Will not have a setter because a random password should be given to the
     // garage owner/admin to access this classes features
+      public static void dbConnect(){
 
-    public static void createJob(int clientID,int jobID, int jobDuration, String deadline) {
-        job newJob = new job(jobID, jobDuration, deadline);
-        cRR req = new cRR(clientID);
-        VCC.currentJobList.add(newJob);
-        VCC.computationalResourceRequestors.add(req);
-        // Write the job details to the "jobs.txt" file
-        writeJobToFile(req, newJob);
-    }
+    
+        try{
+        DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        String DB_URL = "jdbc:mysql://localhost:3306/vcrtsDB";
+        String DB_USER = "root";
+        String DB_PASSWORD = "BruceAlmighty_23";
 
-    private static void writeJobToFile(cRR r,job newJob) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("jobs.txt", true))) {
-            // Format the job details as a string
-            String jobDetails =r.getUserID() + ", " + newJob.getJobID() + "," + newJob.getJobDuration() + "," + newJob.getDeadline();
-            // Write the job details to the file
-            writer.write(jobDetails);
-            writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the exception, e.g., log an error message or throw an exception
+        conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        System.out.println("Connected To VCRTS Database");
         }
-    }
-
-    public static void createVOandV(int vOID, String make, String model, String plate) {
-        vehicle newVehicle = new vehicle(make, model, plate);
-        vO newVO = new vO(vOID, newVehicle);
-        VCC.currentParkedVehicles.add(newVehicle);
-        VCC.vehicleOwners.add(newVO);
-        // Writes to VO
+        catch(ClassNotFoundException | SQLException e){
+            e.printStackTrace();
+        }
     }
     public static void runServer() {
         executor = Executors.newCachedThreadPool(); //Adds new threads as needed
@@ -74,6 +69,59 @@ public class VCC {
     });
     }
 
+    public static void createJob(int clientID,int jobID, int jobDuration, String deadline) {
+        job newJob = new job(jobID, jobDuration, deadline);
+        cRR req = new cRR(clientID);
+        VCC.currentJobList.add(newJob);
+        VCC.computationalResourceRequestors.add(req);
+        // Write the job details to the "jobs.txt" file
+        writeCRRtoDB(req, newJob);
+    }
+    //Database writer for CRRs
+    public static void writeCRRtoDB(cRR r, job j) {
+        try{
+            String query = "INSERT INTO CRR (ID, jobID, duration, deadline, timestamp) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement preparedStatement = conn.prepareStatement(query);
+            preparedStatement.setInt(1, r.getUserID());
+            preparedStatement.setInt(2, j.getJobID());
+            preparedStatement.setInt(3, j.getJobDuration());
+            preparedStatement.setString(4, j.getDeadline());
+            preparedStatement.setTimestamp(5, getCurrentTimestamp());
+            preparedStatement.executeUpdate();
+            conn.commit();
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void writeVOtoDB(vO v){
+        try {
+            String query = "INSERT INTO VO (ID, make, model, plate, timestamp) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement preparedStatement = conn.prepareStatement(query);
+            preparedStatement.setInt(1, v.getUserID());
+            preparedStatement.setString(2, v.getVehicle().getMake());
+            preparedStatement.setString(3, v.getVehicle().getModel());
+            preparedStatement.setString(4, v.getVehicle().getPlate());
+            preparedStatement.setTimestamp(5, getCurrentTimestamp());
+            preparedStatement.executeUpdate();
+            conn.commit();
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+
+    }
+    public static void createVOandV(int vOID, String make, String model, String plate) {
+        vehicle newVehicle = new vehicle(make, model, plate);
+        vO newVO = new vO(vOID, newVehicle);
+        VCC.currentParkedVehicles.add(newVehicle);
+        VCC.vehicleOwners.add(newVO);
+        // Writes to VO
+        writeVOtoDB(newVO);
+    }
+  
+
     public void acceptVOReq(int vO_ID,vehicle newVehicle){
         createVOandV(vO_ID, newVehicle.getMake(), newVehicle.getModel(), newVehicle.getPlate());   
         System.out.println("Added information for user " + Integer.toString(vO_ID) + "to data structures.");
@@ -93,6 +141,10 @@ public class VCC {
             // Handle the exception, e.g., log an error message or throw an exception
         }
     }
+    private static Timestamp getCurrentTimestamp() {
+        Date currentDate = new Date();
+        return new Timestamp(currentDate.getTime());
+    }
      private static void handleVehicleOwnerData(String data) {
         // Use StringTokenizer to tokenize the data
         String clean = data.replaceAll("Vehicle and Owner Info: ", "");
@@ -107,7 +159,7 @@ public class VCC {
         // Create a VehicleOwner object and add it to the array list
         vO vehicleOwner = new vO(userID, v);
         createVOandV(userID, make, model, plate);
-        writeVOToFile(vehicleOwner);
+        
     }
 
     private static void handleJobInformationData(String data) {
@@ -119,14 +171,8 @@ public class VCC {
         int jobID = Integer.parseInt(tokenizer.nextToken().trim());
         int jobDuration = Integer.parseInt(tokenizer.nextToken().trim());
         String deadline = tokenizer.nextToken().trim();
-        job j = new job(jobID, jobDuration, deadline);
-        cRR jo = new cRR(cliID);
-
         // Create a JobInformation object and add it to the array list
-        createJob(cliID, jobID, jobDuration, deadline);
-
-
-     
+        createJob(cliID, jobID, jobDuration, deadline);  
     }
     public static void handleIncomingData(String data) {
         JFrame alertFrame = new JFrame("Incoming Data Alert");
