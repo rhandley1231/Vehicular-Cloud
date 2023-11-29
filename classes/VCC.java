@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.net.Socket;
@@ -25,6 +26,10 @@ public class VCC {
     public static ArrayList<cRR> computationalResourceRequestors = new ArrayList<cRR>();
     public static ArrayList<vO> vehicleOwners = new ArrayList<vO>();
     private static Connection conn;
+    private static Socket socket;
+    private static ObjectInputStream objectInputStream;
+    private static ObjectOutputStream objectOutputStream;
+   
     
 
 
@@ -56,8 +61,9 @@ public class VCC {
             System.out.println("Server Online, listening for requests");
             while(true){
                 //Accepts incoming connections
-                Socket cSocket = server.accept();
-                ObjectInputStream objectInputStream = new ObjectInputStream(cSocket.getInputStream());
+                socket = server.accept();
+                objectInputStream = new ObjectInputStream(socket.getInputStream());
+                //ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                 System.out.println("A client has connected to the server!");
                 String data = objectInputStream.readUTF();
                 handleIncomingData(data);
@@ -88,7 +94,6 @@ public class VCC {
             preparedStatement.setString(4, j.getDeadline());
             preparedStatement.setTimestamp(5, getCurrentTimestamp());
             preparedStatement.executeUpdate();
-            conn.commit();
         }
          catch (SQLIntegrityConstraintViolationException e) {
             // Handle the duplicate primary key exception
@@ -109,7 +114,6 @@ public class VCC {
             preparedStatement.setString(4, v.getVehicle().getPlate());
             preparedStatement.setTimestamp(5, getCurrentTimestamp());
             preparedStatement.executeUpdate();
-            conn.commit();
         }
          catch (SQLIntegrityConstraintViolationException e) {
             // Handle the duplicate primary key exception
@@ -211,11 +215,25 @@ public class VCC {
             } else {
                 handleJobInformationData(data);
             }
-            alertFrame.dispose(); // Close the alert after processing
+            alertFrame.dispose();
+            try{
+                objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                objectOutputStream.writeObject("accepted");
+                objectOutputStream.flush();
+            } catch (IOException error) {
+                System.out.println("Error in sending message: " + error.getMessage());
+            }
         });
 
         rejectButton.addActionListener(e -> {
             alertFrame.dispose(); // Close the alert without processing
+            try{
+                objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                objectOutputStream.writeObject("rejected");
+                objectOutputStream.flush();
+            } catch (IOException error) {
+                System.out.println("Error in sending message: " + error.getMessage());
+            }
         });
 
         alertPanel.add(dataScrollPane, BorderLayout.CENTER);

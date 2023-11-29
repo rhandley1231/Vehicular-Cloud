@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -147,11 +148,26 @@ public class cRRrun extends JFrame {
             objectOutputStream.writeUTF(info);
             objectOutputStream.flush();
 
-            // Show success message
-            JOptionPane.showMessageDialog(frame, "Successfully sent information to server!",
+               // Wait for a response from the server
+        ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+        String serverResponse = (String) objectInputStream.readObject();
+
+        // Show the appropriate success or failure message based on the server's response
+        if (serverResponse.equals("accepted")) {
+            JOptionPane.showMessageDialog(frame, "The server has accepted the request!\nThank you for parking with us",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else if (serverResponse.equals("rejected")) {
+            JOptionPane.showMessageDialog(frame, "The server has rejected the request.\nPlease see the lot attendent.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(frame, "Unexpected server response: " + serverResponse,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Error sending information to server: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (ClassNotFoundException e) {
+             JOptionPane.showMessageDialog(frame, "Error sending information to server: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }

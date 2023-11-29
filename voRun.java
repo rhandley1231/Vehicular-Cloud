@@ -2,9 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -135,10 +138,23 @@ public class voRun {
             objectOutputStream.writeUTF("Vehicle and Owner Info: " + Integer.toString(owner.getUserID()) + " " + owner.getVehicle().getMake() + " " + owner.getVehicle().getModel() + " " + owner.getVehicle().getPlate());
             objectOutputStream.flush();
 
-            // Show success message
-            JOptionPane.showMessageDialog(frame, "Successfully sent vehicle information to the server!",
-                    "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+           
+               // Wait for a response from the server
+        ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+        String serverResponse = (String) objectInputStream.readObject();
 
+        // Show the appropriate success or failure message based on the server's response
+        if (serverResponse.equals("accepted")) {
+            JOptionPane.showMessageDialog(frame, "The server has accepted the request!\nThank you for parking with us",
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else if (serverResponse.equals("rejected")) {
+            JOptionPane.showMessageDialog(frame, "The server has rejected the request.\nPlease see the lot attendent.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(frame, "Unexpected server response: " + serverResponse,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
             // Clear input fields for new entries
             ownerIDField.setText("");
             makeField.setText("");
@@ -150,7 +166,11 @@ public class voRun {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Error sending vehicle information to server: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
+        } catch(ClassNotFoundException cnf) {
+            JOptionPane.showMessageDialog(frame, "Error sending vehicle information to server: " + cnf.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
         }
+
     }
 
     private String getCurrentTimestamp() {
