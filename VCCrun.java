@@ -18,6 +18,7 @@ public class VCCrun {
         createWelcomePanel();
         frame.setVisible(true);
         VCC.runServer();
+        VCC.dbConnect();
     }
 
     private void createWelcomePanel() {
