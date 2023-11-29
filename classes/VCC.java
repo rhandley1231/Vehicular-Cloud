@@ -90,6 +90,10 @@ public class VCC {
             preparedStatement.executeUpdate();
             conn.commit();
         }
+         catch (SQLIntegrityConstraintViolationException e) {
+            // Handle the duplicate primary key exception
+            JOptionPane.showMessageDialog(null, "Duplicate primary key in CRR table!", "Error", JOptionPane.ERROR_MESSAGE);
+        } 
         catch(SQLException e){
             e.printStackTrace();
         }
@@ -107,6 +111,10 @@ public class VCC {
             preparedStatement.executeUpdate();
             conn.commit();
         }
+         catch (SQLIntegrityConstraintViolationException e) {
+            // Handle the duplicate primary key exception
+            JOptionPane.showMessageDialog(null, "Duplicate primary key in VO table!", "Error", JOptionPane.ERROR_MESSAGE);
+        } 
         catch(SQLException e){
             e.printStackTrace();
         }
