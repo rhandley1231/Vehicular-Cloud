@@ -4,9 +4,11 @@ import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.io.BufferedWriter;
+import java.io.EOFException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.net.Socket;
@@ -25,6 +27,10 @@ public class VCC {
     public static ArrayList<cRR> computationalResourceRequestors = new ArrayList<cRR>();
     public static ArrayList<vO> vehicleOwners = new ArrayList<vO>();
     private static Connection conn;
+    private static Socket socket;
+    private static ObjectInputStream objectInputStream;
+    private static ObjectOutputStream objectOutputStream;
+   
     
 
 
@@ -48,7 +54,7 @@ public class VCC {
             e.printStackTrace();
         }
     }
-    public static void runServer() {
+    /*public static void runServer() {
         executor = Executors.newCachedThreadPool(); //Adds new threads as needed
         executor.submit(() -> {
         try{
@@ -56,8 +62,9 @@ public class VCC {
             System.out.println("Server Online, listening for requests");
             while(true){
                 //Accepts incoming connections
-                Socket cSocket = server.accept();
-                ObjectInputStream objectInputStream = new ObjectInputStream(cSocket.getInputStream());
+                socket = server.accept();
+                objectInputStream = new ObjectInputStream(socket.getInputStream());
+                //ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                 System.out.println("A client has connected to the server!");
                 String data = objectInputStream.readUTF();
                 handleIncomingData(data);
@@ -67,7 +74,51 @@ public class VCC {
             e.getStackTrace();
         }
     });
+    }*/
+    public static void runServer() {
+        executor = Executors.newCachedThreadPool(); //Adds new threads as needed
+        executor.submit(() -> {
+            try {
+                server = new ServerSocket(PORT);
+                System.out.println("Server Online, listening for requests");
+                while (true) {
+                    //Accepts incoming connections
+                    socket = server.accept();
+                    System.out.println("A client has connected to the server!");
+                    // Create a new thread to handle the client's connection
+                    executor.submit(() -> processClientConnection(socket));
+                }
+            } catch (IOException e) {
+                e.getStackTrace();
+            }
+        });
     }
+    
+    private static void processClientConnection(Socket clientSocket) {
+    try {
+        objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
+        while (true) {
+            String data = objectInputStream.readUTF();
+            handleIncomingData(data);
+        }
+    } catch (EOFException e) {
+        // The client has closed the connection
+        System.out.println("Client disconnected from the server");
+    } catch (IOException e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (objectInputStream != null) {
+                objectInputStream.close();
+            }
+            if (clientSocket != null) {
+                clientSocket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
 
     public static void createJob(int clientID,int jobID, int jobDuration, String deadline) {
         job newJob = new job(jobID, jobDuration, deadline);
@@ -88,7 +139,6 @@ public class VCC {
             preparedStatement.setString(4, j.getDeadline());
             preparedStatement.setTimestamp(5, getCurrentTimestamp());
             preparedStatement.executeUpdate();
-            conn.commit();
         }
          catch (SQLIntegrityConstraintViolationException e) {
             // Handle the duplicate primary key exception
@@ -109,7 +159,6 @@ public class VCC {
             preparedStatement.setString(4, v.getVehicle().getPlate());
             preparedStatement.setTimestamp(5, getCurrentTimestamp());
             preparedStatement.executeUpdate();
-            conn.commit();
         }
          catch (SQLIntegrityConstraintViolationException e) {
             // Handle the duplicate primary key exception
@@ -211,11 +260,25 @@ public class VCC {
             } else {
                 handleJobInformationData(data);
             }
-            alertFrame.dispose(); // Close the alert after processing
+            alertFrame.dispose();
+            try{
+                objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                objectOutputStream.writeObject("accepted");
+                objectOutputStream.flush();
+            } catch (IOException error) {
+                System.out.println("Error in sending message: " + error.getMessage());
+            }
         });
 
         rejectButton.addActionListener(e -> {
             alertFrame.dispose(); // Close the alert without processing
+            try{
+                objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                objectOutputStream.writeObject("rejected");
+                objectOutputStream.flush();
+            } catch (IOException error) {
+                System.out.println("Error in sending message: " + error.getMessage());
+            }
         });
 
         alertPanel.add(dataScrollPane, BorderLayout.CENTER);

@@ -2,9 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -18,7 +21,7 @@ public class voRun {
     private JTextField ownerIDField, makeField, modelField, licensePlateField;
     private JButton submitButton, goBackButton;
     private Socket socket;
-    private ObjectOutputStream objectOutputStream;
+   
 
     public voRun() {
         frame = new JFrame("Vehicle Owner Interface");
@@ -35,8 +38,8 @@ public class voRun {
             // Replace "localhost" and 8080 with the actual server address and port
             socket = new Socket("localhost", 8080);
             System.out.println("Connected to Server!");
-            OutputStream outputStream = socket.getOutputStream();
-            objectOutputStream = new ObjectOutputStream(outputStream);
+            //OutputStream outputStream = socket.getOutputStream();
+            //objectOutputStream = new ObjectOutputStream(outputStream);
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Error connecting to the server: " + e.getMessage(),
@@ -90,6 +93,15 @@ public class voRun {
         submitButton.addActionListener(e -> {
             sendVehicleInfoToServer();
         });
+        goBackButton.addActionListener(e -> {
+            try{
+                socket.close();
+            }catch(IOException error){
+                JOptionPane.showMessageDialog(frame, "Error connecting to the server: " + error.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+          
+        });
         inputPanel.add(submitButton, gbc);
 
         gbc.gridx = 1;
@@ -132,25 +144,46 @@ public class voRun {
             vO owner = new vO(ownerID, vehicle);
 
             // Send the Vehicle object to the server
+            OutputStream outputStream = socket.getOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
             objectOutputStream.writeUTF("Vehicle and Owner Info: " + Integer.toString(owner.getUserID()) + " " + owner.getVehicle().getMake() + " " + owner.getVehicle().getModel() + " " + owner.getVehicle().getPlate());
             objectOutputStream.flush();
 
-            // Show success message
-            JOptionPane.showMessageDialog(frame, "Successfully sent vehicle information to the server!",
-                    "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+           
+               // Wait for a response from the server
+        ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+        String serverResponse = (String) objectInputStream.readObject();
 
+        // Show the appropriate success or failure message based on the server's response
+        if (serverResponse.equals("accepted")) {
+            JOptionPane.showMessageDialog(frame, "The server has accepted the request!\nThank you for parking with us",
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else if (serverResponse.equals("rejected")) {
+            JOptionPane.showMessageDialog(frame, "The server has rejected the request.\nPlease see the lot attendent.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(frame, "Unexpected server response: " + serverResponse,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
             // Clear input fields for new entries
             ownerIDField.setText("");
             makeField.setText("");
             modelField.setText("");
             licensePlateField.setText("");
+            socket.close();
+            initializeSocket();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(frame, "Invalid input. Please enter valid numbers.",
                     "Error", JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Error sending vehicle information to server: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
+        } catch(ClassNotFoundException cnf) {
+            JOptionPane.showMessageDialog(frame, "Error sending vehicle information to server: " + cnf.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
         }
+
     }
 
     private String getCurrentTimestamp() {

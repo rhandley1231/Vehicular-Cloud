@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -132,8 +133,8 @@ public class cRRrun extends JFrame {
             // Replace "localhost" and 8080 with the actual server address and port
             socket = new Socket("localhost", 8080);
             System.out.println("Connected to Server!");
-            OutputStream outputStream = socket.getOutputStream();
-            objectOutputStream = new ObjectOutputStream(outputStream);
+            //OutputStream outputStream = socket.getOutputStream();
+            //objectOutputStream = new ObjectOutputStream(outputStream);
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Error connecting to the server: " + e.getMessage(),
@@ -144,14 +145,33 @@ public class cRRrun extends JFrame {
     private void sendInfo(String info) {
         try {
             // Send the information to the server
+            OutputStream outputStream = socket.getOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
             objectOutputStream.writeUTF(info);
             objectOutputStream.flush();
 
-            // Show success message
-            JOptionPane.showMessageDialog(frame, "Successfully sent information to server!",
+               // Wait for a response from the server
+        ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+        String serverResponse = (String) objectInputStream.readObject();
+
+        // Show the appropriate success or failure message based on the server's response
+        if (serverResponse.equals("accepted")) {
+            JOptionPane.showMessageDialog(frame, "The server has accepted the request!\nThank you for parking with us",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else if (serverResponse.equals("rejected")) {
+            JOptionPane.showMessageDialog(frame, "The server has rejected the request.\nPlease see the lot attendent.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(frame, "Unexpected server response: " + serverResponse,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        socket.close();
+        initializeSocket();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Error sending information to server: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (ClassNotFoundException e) {
+             JOptionPane.showMessageDialog(frame, "Error sending information to server: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
