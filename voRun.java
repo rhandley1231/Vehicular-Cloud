@@ -21,7 +21,7 @@ public class voRun {
     private JTextField ownerIDField, makeField, modelField, licensePlateField;
     private JButton submitButton, goBackButton;
     private Socket socket;
-    private ObjectOutputStream objectOutputStream;
+   
 
     public voRun() {
         frame = new JFrame("Vehicle Owner Interface");
@@ -38,8 +38,8 @@ public class voRun {
             // Replace "localhost" and 8080 with the actual server address and port
             socket = new Socket("localhost", 8080);
             System.out.println("Connected to Server!");
-            OutputStream outputStream = socket.getOutputStream();
-            objectOutputStream = new ObjectOutputStream(outputStream);
+            //OutputStream outputStream = socket.getOutputStream();
+            //objectOutputStream = new ObjectOutputStream(outputStream);
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Error connecting to the server: " + e.getMessage(),
@@ -93,6 +93,15 @@ public class voRun {
         submitButton.addActionListener(e -> {
             sendVehicleInfoToServer();
         });
+        goBackButton.addActionListener(e -> {
+            try{
+                socket.close();
+            }catch(IOException error){
+                JOptionPane.showMessageDialog(frame, "Error connecting to the server: " + error.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+          
+        });
         inputPanel.add(submitButton, gbc);
 
         gbc.gridx = 1;
@@ -135,6 +144,8 @@ public class voRun {
             vO owner = new vO(ownerID, vehicle);
 
             // Send the Vehicle object to the server
+            OutputStream outputStream = socket.getOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
             objectOutputStream.writeUTF("Vehicle and Owner Info: " + Integer.toString(owner.getUserID()) + " " + owner.getVehicle().getMake() + " " + owner.getVehicle().getModel() + " " + owner.getVehicle().getPlate());
             objectOutputStream.flush();
 
@@ -160,6 +171,8 @@ public class voRun {
             makeField.setText("");
             modelField.setText("");
             licensePlateField.setText("");
+            socket.close();
+            initializeSocket();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(frame, "Invalid input. Please enter valid numbers.",
                     "Error", JOptionPane.ERROR_MESSAGE);

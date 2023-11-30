@@ -133,8 +133,8 @@ public class cRRrun extends JFrame {
             // Replace "localhost" and 8080 with the actual server address and port
             socket = new Socket("localhost", 8080);
             System.out.println("Connected to Server!");
-            OutputStream outputStream = socket.getOutputStream();
-            objectOutputStream = new ObjectOutputStream(outputStream);
+            //OutputStream outputStream = socket.getOutputStream();
+            //objectOutputStream = new ObjectOutputStream(outputStream);
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Error connecting to the server: " + e.getMessage(),
@@ -145,6 +145,8 @@ public class cRRrun extends JFrame {
     private void sendInfo(String info) {
         try {
             // Send the information to the server
+            OutputStream outputStream = socket.getOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
             objectOutputStream.writeUTF(info);
             objectOutputStream.flush();
 
@@ -163,6 +165,8 @@ public class cRRrun extends JFrame {
             JOptionPane.showMessageDialog(frame, "Unexpected server response: " + serverResponse,
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
+        socket.close();
+        initializeSocket();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Error sending information to server: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
