@@ -160,7 +160,7 @@ public class VCC {
             preparedStatement.setTimestamp(5, getCurrentTimestamp());
             preparedStatement.executeUpdate();
         }
-         catch (SQLIntegrityConstraintViolationException e) {
+        catch (SQLIntegrityConstraintViolationException e) {
             // Handle the duplicate primary key exception
             JOptionPane.showMessageDialog(null, "Duplicate primary key in VO table!", "Error", JOptionPane.ERROR_MESSAGE);
         } 
@@ -256,17 +256,49 @@ public class VCC {
         acceptButton.addActionListener(e -> {
             // Check the data and perform appropriate actions
             if (data.startsWith("Vehicle and Owner Info: ")) {
-                handleVehicleOwnerData(data); 
+                try {
+                    handleVehicleOwnerData(data);
+                    alertFrame.dispose();
+                    try {
+                        objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                        objectOutputStream.writeObject("accepted");
+                        objectOutputStream.flush();
+                    } catch (IOException error) {
+                        System.out.println("Error in sending message: " + error.getMessage());
+                    }
+                } catch (SQLIntegrityConstraintViolationException e1) {
+                    JOptionPane.showMessageDialog(null, "Duplicate primary key in VO table!", "Error", JOptionPane.ERROR_MESSAGE);
+                    alertFrame.dispose();
+                    try {
+                        objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                        objectOutputStream.writeObject("rejected");
+                        objectOutputStream.flush();
+                    } catch (IOException error) {
+                        System.out.println("Error in sending message: " + error.getMessage());
+                    }
+                }
             } else {
-                handleJobInformationData(data);
-            }
-            alertFrame.dispose();
-            try{
-                objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-                objectOutputStream.writeObject("accepted");
-                objectOutputStream.flush();
-            } catch (IOException error) {
-                System.out.println("Error in sending message: " + error.getMessage());
+                try {
+                    handleJobInformationData(data);
+                    alertFrame.dispose();
+                    try {
+                        objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                        objectOutputStream.writeObject("accepted");
+                        objectOutputStream.flush();
+                    } catch (IOException error) {
+                        System.out.println("Error in sending message: " + error.getMessage());
+                    }
+                } catch (SQLIntegrityConstraintViolationException e1) {
+                    JOptionPane.showMessageDialog(null, "Duplicate primary key in CRR table!", "Error", JOptionPane.ERROR_MESSAGE);
+                    alertFrame.dispose();
+                    try {
+                        objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                        objectOutputStream.writeObject("rejected");
+                        objectOutputStream.flush();
+                    } catch (IOException error) {
+                        System.out.println("Error in sending message: " + error.getMessage());
+                    }
+                }
             }
         });
 
