@@ -74,6 +74,7 @@ public class voRun {
 
         welcomePanel.add(welcomeTextArea, BorderLayout.NORTH);
 
+        
         JPanel inputPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
