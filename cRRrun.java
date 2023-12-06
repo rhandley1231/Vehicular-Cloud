@@ -2,17 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import classes.*;
+
 
 public class cRRrun extends JFrame {
     private JFrame frame;
@@ -20,16 +15,15 @@ public class cRRrun extends JFrame {
     private JTextField jobIDField;
     private JTextField durationField;
     private JTextField deadlineField;
-    private ArrayList<job> jobList;
-    private Socket socket;
-    private ObjectOutputStream objectOutputStream;
 
+    private Socket socket;
+    
     public cRRrun() {
         super("Computation Resource Requester");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400, 300);
 
-        jobList = new ArrayList<>();
+       
 
         createWelcomePanel();
 
@@ -156,10 +150,10 @@ public class cRRrun extends JFrame {
 
         // Show the appropriate success or failure message based on the server's response
         if (serverResponse.equals("accepted")) {
-            JOptionPane.showMessageDialog(frame, "The server has accepted the request!\nThank you for parking with us",
+            JOptionPane.showMessageDialog(frame, "The server has accepted the request!\nThank you for using our computation services",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
         } else if (serverResponse.equals("rejected")) {
-            JOptionPane.showMessageDialog(frame, "The server has rejected the request.\nPlease see the lot attendent.",
+            JOptionPane.showMessageDialog(frame, "The server has rejected the request.\nPlease call the lot's office.",
                     "Error", JOptionPane.ERROR_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(frame, "Unexpected server response: " + serverResponse,
@@ -198,20 +192,6 @@ public class cRRrun extends JFrame {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter valid numbers.");
         }
     }
-
-    private void saveToFile(int userID, String jobInfo, int duration, String deadline) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("CRR.txt", true))) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-            String currentTime = dateFormat.format(new Date());
-
-            writer.write("User ID: " + userID + ", Job Info: " + jobInfo +
-                    ", Duration: " + duration + " hours, Deadline: " + deadline + ", Submitted at: " + currentTime);
-            writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new cRRrun();

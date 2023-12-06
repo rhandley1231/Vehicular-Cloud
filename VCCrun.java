@@ -33,11 +33,14 @@ public class VCCrun {
         + "<li>Accept or Reject Incoming Jobs or Parking Requests</li>"
         + "<li>See computation times</li>"
         + "</ul></div></html>");
-welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        Font labelFont = welcomeLabel.getFont();
+        welcomeLabel.setFont(new Font(labelFont.getName(), Font.PLAIN, 18));
 
         currentPanel.add(welcomeLabel, BorderLayout.NORTH);
 
-        JButton computationTimeButton = new JButton("See Wait Time");
+        JButton computationTimeButton = new JButton("See Computation Time");
 
         currentPanel.add(computationTimeButton, BorderLayout.SOUTH);
 
