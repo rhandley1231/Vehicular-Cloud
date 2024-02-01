@@ -1,0 +1,18 @@
+CREATE DATABASE `vcrtsDB` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+CREATE TABLE `CRR` (
+  `ID` int NOT NULL,
+  `jobID` int NOT NULL,
+  `Duration` int NOT NULL,
+  `Deadline` varchar(45) NOT NULL,
+  `Timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ID`,`jobID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `VO` (
+  `ID` int NOT NULL,
+  `make` varchar(45) NOT NULL,
+  `model` varchar(45) NOT NULL,
+  `plate` varchar(45) NOT NULL,
+  `Timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`plate`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
